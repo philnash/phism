@@ -8,3 +8,17 @@ body {
   display: grid;
   grid-template-rows: auto 1fr auto;
 }
+
+#audio-preview {
+  height: 100px;
+  width: 50px;
+  position: relative;
+}
+
+#audio-preview > div {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 0px;
+  background-color: rebeccapurple;
+}
