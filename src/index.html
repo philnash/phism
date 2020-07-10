@@ -10,12 +10,18 @@
     <header><h1>Video Collaboration</h1></header>
 
     <main>
-      <button id="media-preview">Preview camera and microphone</button>
+      <div class="controls">
+        <button id="media-preview">Preview camera and microphone</button>
+      </div>
 
-      <div id="video-preview"></div>
-      <div id="audio-preview"><div></div></div>
-      <div id="camera-selector"></div>
-      <div id="mic-selector"></div>
+      <div id="local-participant">
+        <div id="video-preview"></div>
+        <canvas id="audio-data" width="300" height="100"></canvas>
+        <div class="controls">
+          <div id="camera-selector"></div>
+          <div id="mic-selector"></div>
+        </div>
+      </div>
     </main>
 
     <footer>

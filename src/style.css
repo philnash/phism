@@ -9,6 +9,23 @@ body {
   grid-template-rows: auto 1fr auto;
 }
 
+header h1,
+footer p {
+  text-align: center;
+}
+
+.controls {
+  text-align: center;
+}
+
+main #local-participant video,
+main #local-participant canvas,
+main #local-participant .controls {
+  display: block;
+  width: 300px;
+  margin: 0 auto 1em;
+}
+
 #audio-preview {
   height: 100px;
   width: 50px;
