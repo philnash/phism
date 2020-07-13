@@ -47,4 +47,35 @@ const getVolume = async (track, callback) => {
   });
 };
 
-module.exports = { createVolumeMeter, getVolume };
+const mapRange = (value, x1, y1, x2, y2) =>
+  ((value - x1) * (y2 - x2)) / (y1 - x1) + x2;
+
+const pollAudio = (audioTrack, canvas) => {
+  const context = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+  getVolume(audioTrack, (bufferLength, samples) => {
+    context.fillStyle = "rgb(255, 255, 255)";
+    context.fillRect(0, 0, width, height);
+
+    var barWidth = (width / bufferLength) * 2.5;
+    var barHeight;
+    var x = 0;
+
+    for (var i = 0; i < bufferLength; i++) {
+      barHeight = mapRange(samples[i], 0, 255, 0, height * 2);
+
+      context.fillStyle = "rgb(" + (barHeight + 100) + ",51,153)";
+      context.fillRect(
+        x,
+        (height - barHeight / 2) / 2,
+        barWidth,
+        barHeight / 4
+      );
+      context.fillRect(x, height / 2, barWidth, barHeight / 4);
+      x += barWidth + 1;
+    }
+  });
+};
+
+module.exports = { pollAudio };

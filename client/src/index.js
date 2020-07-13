@@ -1,35 +1,9 @@
 import Video from "twilio-video";
-import { getVolume } from "./lib/volume-meter";
+import { pollAudio } from "./lib/volume-meter";
 
 let videoTrack, audioTrack;
 const videoPreviewDiv = document.getElementById("video-preview");
 const canvas = document.getElementById("audio-data");
-const ctx = canvas.getContext("2d");
-const width = canvas.width;
-const height = canvas.height;
-
-const mapRange = (value, x1, y1, x2, y2) =>
-  ((value - x1) * (y2 - x2)) / (y1 - x1) + x2;
-
-const pollAudio = (audioTrack) => {
-  getVolume(audioTrack, (bufferLength, samples) => {
-    ctx.fillStyle = "rgb(255, 255, 255)";
-    ctx.fillRect(0, 0, width, height);
-
-    var barWidth = (width / bufferLength) * 2.5;
-    var barHeight;
-    var x = 0;
-
-    for (var i = 0; i < bufferLength; i++) {
-      barHeight = mapRange(samples[i], 0, 255, 0, height * 2);
-
-      ctx.fillStyle = "rgb(" + (barHeight + 100) + ",51,153)";
-      ctx.fillRect(x, (height - barHeight / 2) / 2, barWidth, barHeight / 4);
-      ctx.fillRect(x, height / 2, barWidth, barHeight / 4);
-      x += barWidth + 1;
-    }
-  });
-};
 
 const attachTrack = (div, track) => div.appendChild(track.attach());
 const detachTrack = (div, track) => {
@@ -61,7 +35,7 @@ const createLocalAudioTrack = async (deviceId) => {
       deviceId: { exact: deviceId },
     });
     audioTrack = newAudioTrack;
-    pollAudio(audioTrack);
+    pollAudio(audioTrack, canvas);
   } catch (error) {
     console.error(error);
   }
@@ -131,7 +105,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }
 
       attachTrack(videoPreviewDiv, videoTrack);
-      pollAudio(audioTrack);
+      pollAudio(audioTrack, canvas);
     } catch (error) {
       console.error(error);
     }
