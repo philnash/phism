@@ -12,6 +12,19 @@
     <main>
       <div class="controls">
         <button id="media-preview">Preview camera and microphone</button>
+        <form action="/tokens" method="POST" id="join-room" hidden>
+          <h2>Join room</h2>
+          <div class="form-input">
+            <label for="identity">Name</label>
+            <input type="text" name="identity" id="identity" />
+          </div>
+          <div class="form-input">
+            <label for="roomName">Room</label>
+            <input type="text" name="roomName" id="roomName" />
+          </div>
+          <button type="submit">Join room</button>
+        </form>
+        <button id="disconnect" hidden>Disconnect</button>
       </div>
 
       <div id="local-participant">
@@ -22,6 +35,8 @@
           <div id="mic-selector"></div>
         </div>
       </div>
+
+      <ul id="remote-participants"></ul>
     </main>
 
     <footer>

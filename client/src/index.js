@@ -1,7 +1,8 @@
 import Video from "twilio-video";
 import { pollAudio } from "./lib/volume-meter";
+import { initChat } from "./lib/video-chat";
 
-let videoTrack, audioTrack;
+let videoTrack, audioTrack, room;
 const videoPreviewDiv = document.getElementById("video-preview");
 const canvas = document.getElementById("audio-data");
 
@@ -16,6 +17,9 @@ const detachTrack = (div, track) => {
 
 const createLocalVideoTrack = async (deviceId) => {
   try {
+    if (room) {
+      room.localParticipant.unpublishTrack(videoTrack);
+    }
     videoTrack.stop();
     detachTrack(videoPreviewDiv, videoTrack);
     const newVideoTrack = await Video.createLocalVideoTrack({
@@ -23,6 +27,9 @@ const createLocalVideoTrack = async (deviceId) => {
     });
     attachTrack(videoPreviewDiv, newVideoTrack);
     videoTrack = newVideoTrack;
+    if (room) {
+      room.localParticipant.publishTrack(videoTrack);
+    }
   } catch (error) {
     console.error(error);
   }
@@ -57,6 +64,9 @@ const buildDropDown = (options, currentDeviceName) => {
 
 window.addEventListener("DOMContentLoaded", () => {
   const previewBtn = document.getElementById("media-preview");
+  const joinForm = document.getElementById("join-room");
+  const remoteParticipants = document.getElementById("remote-participants");
+  const disconnectBtn = document.getElementById("disconnect");
   previewBtn.addEventListener("click", async () => {
     try {
       const tracks = await Video.createLocalTracks({
@@ -69,6 +79,7 @@ window.addEventListener("DOMContentLoaded", () => {
         },
       });
       previewBtn.remove();
+      joinForm.removeAttribute("hidden");
       videoTrack = tracks.find((track) => track.kind === "video");
       audioTrack = tracks.find((track) => track.kind === "audio");
 
@@ -109,5 +120,37 @@ window.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       console.error(error);
     }
+  });
+
+  joinForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const inputs = joinForm.querySelectorAll("input");
+    const data = {};
+    inputs.forEach((input) => (data[input.getAttribute("name")] = input.value));
+    const { token, identity, roomName } = await fetch(
+      joinForm.getAttribute("action"),
+      {
+        method: joinForm.getAttribute("method"),
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    ).then((res) => res.json());
+    joinForm.setAttribute("hidden", "hidden");
+    // console.log(token, identity, roomName);
+    // initChat(token, roomName, [videoTrack, audioTrack], remoteParticipants);
+    room = await initChat(token, roomName, [videoTrack], remoteParticipants);
+    disconnectBtn.removeAttribute("hidden");
+  });
+
+  disconnectBtn.addEventListener("click", () => {
+    if (!room) {
+      return;
+    }
+    room.disconnect();
+    disconnectBtn.setAttribute("hidden", "hidden");
+    joinForm.removeAttribute("hidden");
+    room = null;
   });
 });
