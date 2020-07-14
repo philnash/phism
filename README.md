@@ -36,7 +36,7 @@ npm start
 - [x] Choose and switch camera and microphone
 - [x] Join a room
 - [x] Disconnect from room
-- [ ] Screen sharing
+- [x] Screen sharing
 - [ ] Dominant speaker detection
 - [ ] Emoji reactions
 - [ ] Muting participants and hand up to speak
