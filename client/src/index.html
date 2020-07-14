@@ -10,6 +10,15 @@
     <header><h1>Video Collaboration</h1></header>
 
     <main>
+      <div id="local-participant">
+        <div id="video-preview"></div>
+        <canvas id="audio-data" width="300" height="100"></canvas>
+        <div class="controls">
+          <div id="camera-selector"></div>
+          <div id="mic-selector"></div>
+        </div>
+      </div>
+
       <div class="controls">
         <button id="media-preview">Preview camera and microphone</button>
         <form action="/tokens" method="POST" id="join-room" hidden>
@@ -25,15 +34,6 @@
           <button type="submit">Join room</button>
         </form>
         <button id="disconnect" hidden>Disconnect</button>
-      </div>
-
-      <div id="local-participant">
-        <div id="video-preview"></div>
-        <canvas id="audio-data" width="300" height="100"></canvas>
-        <div class="controls">
-          <div id="camera-selector"></div>
-          <div id="mic-selector"></div>
-        </div>
       </div>
 
       <ul id="remote-participants"></ul>
