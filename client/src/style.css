@@ -39,3 +39,30 @@ main #local-participant .controls {
   height: 0px;
   background-color: rebeccapurple;
 }
+
+/* reactions */
+
+#remote-participants > li {
+  position: relative;
+}
+.reaction {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+}
+
+.reaction.size-1 {
+  font-size: 2em;
+}
+.reaction.size-2 {
+  font-size: 3em;
+}
+.reaction.size-3 {
+  font-size: 4em;
+}
+.reaction.size-4 {
+  font-size: 6em;
+}
+.reaction.size-5 {
+  font-size: 8em;
+}

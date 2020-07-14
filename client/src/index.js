@@ -1,15 +1,17 @@
-import Video, { LocalVideoTrack } from "twilio-video";
+import Video, { LocalVideoTrack, LocalDataTrack } from "twilio-video";
 import { pollAudio } from "./lib/volume-meter";
 import { initChat } from "./lib/video-chat";
 
-let videoTrack, audioTrack, screenTrack, room;
+let videoTrack, audioTrack, screenTrack, dataTrack, room;
 const videoPreviewDiv = document.getElementById("video-preview");
 const canvas = document.getElementById("audio-data");
 
 const attachTrack = (div, track) => div.appendChild(track.attach());
 const detachTrack = (track) => {
-  const mediaElements = track.detach();
-  mediaElements.forEach((mediaElement) => mediaElement.remove());
+  if (track.kind !== "data") {
+    const mediaElements = track.detach();
+    mediaElements.forEach((mediaElement) => mediaElement.remove());
+  }
 };
 
 const createLocalVideoTrack = async (deviceId) => {
@@ -66,6 +68,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const liveControls = document.querySelector(".controls .live");
   const disconnectBtn = document.getElementById("disconnect");
   const screenShareBtn = document.getElementById("screen-share");
+  const reactions = document.getElementById("reactions");
   previewBtn.addEventListener("click", async () => {
     try {
       const tracks = await Video.createLocalTracks({
@@ -81,6 +84,7 @@ window.addEventListener("DOMContentLoaded", () => {
       joinForm.removeAttribute("hidden");
       videoTrack = tracks.find((track) => track.kind === "video");
       audioTrack = tracks.find((track) => track.kind === "audio");
+      dataTrack = new LocalDataTrack({ name: "user-data" });
 
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
@@ -137,9 +141,19 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     ).then((res) => res.json());
     joinForm.setAttribute("hidden", "hidden");
-    // initChat(token, roomName, [videoTrack, audioTrack], remoteParticipants);
-    room = await initChat(token, roomName, [videoTrack], remoteParticipants);
+    // initChat(token, roomName, [videoTrack, audioTrack, dataTrack], remoteParticipants);
+    room = await initChat(
+      token,
+      roomName,
+      [videoTrack, dataTrack],
+      remoteParticipants
+    );
     liveControls.removeAttribute("hidden");
+    room.localParticipant.on("trackPublished", (track) => {
+      if (track.kind === "data") {
+        reactions.removeAttribute("hidden");
+      }
+    });
   });
 
   disconnectBtn.addEventListener("click", () => {
@@ -151,6 +165,7 @@ window.addEventListener("DOMContentLoaded", () => {
       stopScreenSharing();
     }
     liveControls.setAttribute("hidden", "hidden");
+    reactions.setAttribute("hidden", "hidden");
     joinForm.removeAttribute("hidden");
     room = null;
   });
@@ -179,6 +194,12 @@ window.addEventListener("DOMContentLoaded", () => {
       } catch (error) {
         console.error(error);
       }
+    }
+  });
+
+  reactions.addEventListener("click", (event) => {
+    if (event.target.nodeName === "BUTTON") {
+      dataTrack.send(event.target.innerText);
     }
   });
 });

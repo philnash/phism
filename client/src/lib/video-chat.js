@@ -24,10 +24,46 @@ export const initChat = async (
   return room;
 };
 
+const messageReceived = (participant) => {
+  const participantItem = participantItems.get(participant.sid);
+  const reactionDiv = participantItem.querySelector(".reaction");
+  let reactionCount = 0;
+  let timeout;
+  return (data) => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    if (reactionDiv.innerText === data) {
+      if (reactionCount < 5) {
+        reactionDiv.classList.remove(`size-${reactionCount}`);
+        reactionCount += 1;
+        reactionDiv.classList.add(`size-${reactionCount}`);
+      }
+    } else {
+      reactionDiv.innerText = data;
+      reactionDiv.classList.remove(`size-${reactionCount}`);
+      reactionCount = 1;
+      reactionDiv.classList.add(`size-${reactionCount}`);
+    }
+    timeout = setTimeout(() => {
+      reactionDiv.innerText = "";
+      reactionDiv.classList.remove(`size-${reactionCount}`);
+      reactionCount = 0;
+    }, 5000);
+  };
+};
+
 const trackSubscribed = (participant) => {
   return (track) => {
     const item = participantItems.get(participant.sid);
-    item.appendChild(track.attach());
+    if (track.kind === "video" || track.kind === "audio") {
+      item.appendChild(track.attach());
+    } else if (track.kind === "data") {
+      const reactionDiv = document.createElement("div");
+      reactionDiv.classList.add("reaction");
+      item.appendChild(reactionDiv);
+      track.on("message", messageReceived(participant));
+    }
   };
 };
 
@@ -37,13 +73,15 @@ const trackPublished = (participant) => {
       trackSubscribed(participant)(track);
     }
     trackPub.on("subscribed", trackSubscribed(participant));
-    trackPub.on("unsubscribed", trackUnscribed);
+    trackPub.on("unsubscribed", trackUnsubcribed);
   };
 };
 
-const trackUnscribed = (track) => {
-  const mediaElements = track.detach();
-  mediaElements.forEach((mediaElement) => mediaElement.remove());
+const trackUnsubcribed = (track) => {
+  if (track.kind !== "data") {
+    const mediaElements = track.detach();
+    mediaElements.forEach((mediaElement) => mediaElement.remove());
+  }
 };
 
 const trackUnpublished = (trackPub) => {
