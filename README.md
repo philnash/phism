@@ -41,8 +41,9 @@ npm start
 - [ ] Emoji reactions
 - [ ] Muting participants and hand up to speak
 - [ ] Breakout rooms
-- [ ] Chat
-- [ ] Live captions
+- [ ] Chat (Twilio Programmable Chat)
+- [ ] Live captions (Web Speech API)
+- [ ] Virtual background ([TensorFlow.js](https://blog.tensorflow.org/2019/11/updated-bodypix-2.html))
 
 ## License
 
