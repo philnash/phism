@@ -19,6 +19,8 @@ export const initChat = async (
   room.on("participantDisconnected", participantDisconnected);
   room.participants.forEach(participantConnected);
   room.on("disconnected", disconnected);
+  window.addEventListener("beforeunload", tidyUp);
+  window.addEventListener("pagehide", tidyUp);
   return room;
 };
 
@@ -75,4 +77,14 @@ const disconnected = (room, error) => {
     participantItems.delete(sid);
   });
   room = null;
+};
+
+const tidyUp = (event) => {
+  if (event.persisted) {
+    return;
+  }
+  if (room) {
+    room.disconnect();
+    room = null;
+  }
 };
