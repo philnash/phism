@@ -1,18 +1,15 @@
-import Video from "twilio-video";
+import Video, { LocalVideoTrack } from "twilio-video";
 import { pollAudio } from "./lib/volume-meter";
 import { initChat } from "./lib/video-chat";
 
-let videoTrack, audioTrack, room;
+let videoTrack, audioTrack, screenTrack, room;
 const videoPreviewDiv = document.getElementById("video-preview");
 const canvas = document.getElementById("audio-data");
 
 const attachTrack = (div, track) => div.appendChild(track.attach());
-const detachTrack = (div, track) => {
-  const element =
-    track.kind === "audioinput"
-      ? div.querySelector("audio")
-      : div.querySelector("video");
-  element.remove();
+const detachTrack = (track) => {
+  const mediaElements = track.detach();
+  mediaElements.forEach((mediaElement) => mediaElement.remove());
 };
 
 const createLocalVideoTrack = async (deviceId) => {
@@ -21,7 +18,7 @@ const createLocalVideoTrack = async (deviceId) => {
       room.localParticipant.unpublishTrack(videoTrack);
     }
     videoTrack.stop();
-    detachTrack(videoPreviewDiv, videoTrack);
+    detachTrack(videoTrack);
     const newVideoTrack = await Video.createLocalVideoTrack({
       deviceId: { exact: deviceId },
     });
@@ -66,7 +63,9 @@ window.addEventListener("DOMContentLoaded", () => {
   const previewBtn = document.getElementById("media-preview");
   const joinForm = document.getElementById("join-room");
   const remoteParticipants = document.getElementById("remote-participants");
+  const liveControls = document.querySelector(".controls .live");
   const disconnectBtn = document.getElementById("disconnect");
+  const screenShareBtn = document.getElementById("screen-share");
   previewBtn.addEventListener("click", async () => {
     try {
       const tracks = await Video.createLocalTracks({
@@ -138,10 +137,9 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     ).then((res) => res.json());
     joinForm.setAttribute("hidden", "hidden");
-    // console.log(token, identity, roomName);
     // initChat(token, roomName, [videoTrack, audioTrack], remoteParticipants);
     room = await initChat(token, roomName, [videoTrack], remoteParticipants);
-    disconnectBtn.removeAttribute("hidden");
+    liveControls.removeAttribute("hidden");
   });
 
   disconnectBtn.addEventListener("click", () => {
@@ -149,8 +147,38 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
     room.disconnect();
-    disconnectBtn.setAttribute("hidden", "hidden");
+    if (screenTrack) {
+      stopScreenSharing();
+    }
+    liveControls.setAttribute("hidden", "hidden");
     joinForm.removeAttribute("hidden");
     room = null;
+  });
+
+  const stopScreenSharing = () => {
+    detachTrack(screenTrack);
+    room.localParticipant.unpublishTrack(screenTrack);
+    screenTrack.stop();
+    screenTrack = null;
+    screenShareBtn.innerText = "Share screen";
+  };
+
+  screenShareBtn.addEventListener("click", async () => {
+    if (screenTrack) {
+      stopScreenSharing();
+    } else {
+      try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia();
+        console.log(screenStream);
+        screenTrack = new LocalVideoTrack(screenStream.getTracks()[0], {
+          name: "user-screen",
+        });
+        room.localParticipant.publishTrack(screenTrack);
+        attachTrack(videoPreviewDiv, screenTrack);
+        screenShareBtn.innerText = "Stop sharing";
+      } catch (error) {
+        console.error(error);
+      }
+    }
   });
 });
