@@ -31,6 +31,19 @@ Run the dev server:
 npm start
 ```
 
+## Todo/ideas
+
+- [x] Choose and switch camera and microphone
+- [x] Join a room
+- [x] Disconnect from room
+- [ ] Screen sharing
+- [ ] Dominant speaker detection
+- [ ] Emoji reactions
+- [ ] Muting participants and hand up to speak
+- [ ] Breakout rooms
+- [ ] Chat
+- [ ] Live captions
+
 ## License
 
 MIT (c) Phil Nash 2020
