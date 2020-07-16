@@ -59,7 +59,6 @@ const trackSubscribed = (participant) => {
     const item = participantItems.get(participant.sid);
     if (track.kind === "video" || track.kind === "audio") {
       const mediaElement = track.attach();
-      console.log(mediaElement);
       item.appendChild(mediaElement);
     } else if (track.kind === "data") {
       const reactionDiv = document.createElement("div");

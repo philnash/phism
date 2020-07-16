@@ -1,6 +1,7 @@
 import Video, { LocalVideoTrack, LocalDataTrack } from "twilio-video";
 import { pollAudio } from "./lib/volume-meter";
 import { initChat } from "./lib/video-chat";
+import { hideElements, showElements } from "./lib/utils";
 
 let videoTrack,
   videoPreview,
@@ -9,6 +10,7 @@ let videoTrack,
   dataTrack,
   room,
   stopPolling;
+let choosingVideo = false;
 const localPreview = document.getElementById("local-preview");
 const videoPreviewDiv = document.getElementById("video-preview");
 const canvas = document.getElementById("audio-data");
@@ -26,6 +28,10 @@ const detachTrack = (track) => {
 };
 
 const createLocalVideoTrack = async (deviceId) => {
+  if (choosingVideo) {
+    return;
+  }
+  choosingVideo = true;
   try {
     if (room) {
       room.localParticipant.unpublishTrack(videoTrack);
@@ -37,9 +43,11 @@ const createLocalVideoTrack = async (deviceId) => {
     });
     videoPreview = attachTrack(videoPreviewDiv, newVideoTrack);
     videoTrack = newVideoTrack;
+    console.log(videoTrack);
     if (room) {
       room.localParticipant.publishTrack(videoTrack);
     }
+    choosingVideo = false;
   } catch (error) {
     console.error(error);
   }
@@ -53,14 +61,13 @@ const createLocalAudioTrack = async (deviceId) => {
     });
     audioTrack = newAudioTrack;
     stopPolling = await pollAudio(audioTrack, canvas);
-    console.log(stopPolling);
   } catch (error) {
     console.error(error);
   }
 };
 
 const hidePreview = () => {
-  localPreview.setAttribute("hidden", "hidden");
+  hideElements(localPreview);
   videoPreview.pause();
   if (stopPolling) {
     stopPolling();
@@ -71,10 +78,12 @@ const hidePreview = () => {
 const showPreview = async () => {
   stopPolling = await pollAudio(audioTrack, canvas);
   videoPreview.play();
-  localPreview.removeAttribute("hidden");
+  showElements(localPreview);
 };
 
-const buildDropDown = (options, currentDeviceName) => {
+const buildDropDown = (labelText, options, currentDeviceName) => {
+  const label = document.createElement("label");
+  label.appendChild(document.createTextNode(labelText));
   const select = document.createElement("select");
   options.forEach((opt) => {
     const option = document.createElement("option");
@@ -85,18 +94,20 @@ const buildDropDown = (options, currentDeviceName) => {
     option.appendChild(document.createTextNode(opt.label));
     select.appendChild(option);
   });
-  return select;
+  label.appendChild(select);
+  return label;
 };
 
 window.addEventListener("DOMContentLoaded", () => {
   const previewBtn = document.getElementById("media-preview");
   const joinForm = document.getElementById("join-room");
   const participants = document.getElementById("participants");
-  const liveControls = document.querySelector(".controls .live");
+  const liveControls = document.querySelector(".live-controls");
   const disconnectBtn = document.getElementById("disconnect");
   const screenShareBtn = document.getElementById("screen-share");
   const reactions = document.getElementById("reactions");
   previewBtn.addEventListener("click", async () => {
+    hideElements(previewBtn);
     try {
       const tracks = await Video.createLocalTracks({
         video: {
@@ -108,7 +119,7 @@ window.addEventListener("DOMContentLoaded", () => {
         },
       });
       previewBtn.remove();
-      joinForm.removeAttribute("hidden");
+      showElements(localPreview, joinForm);
       videoTrack = tracks.find((track) => track.kind === "video");
       audioTrack = tracks.find((track) => track.kind === "audio");
       dataTrack = new LocalDataTrack({ name: "user-data" });
@@ -122,6 +133,7 @@ window.addEventListener("DOMContentLoaded", () => {
           (device) => device.kind === "audioinput"
         );
         const videoSelect = buildDropDown(
+          "Choose camera",
           videoDevices,
           videoTrack.mediaStreamTrack.label
         );
@@ -129,6 +141,7 @@ window.addEventListener("DOMContentLoaded", () => {
           createLocalVideoTrack(event.target.value);
         });
         const audioSelect = buildDropDown(
+          "Choose microphone",
           audioDevices,
           audioTrack.mediaStreamTrack.label
         );
@@ -148,6 +161,7 @@ window.addEventListener("DOMContentLoaded", () => {
       videoPreview = attachTrack(videoPreviewDiv, videoTrack);
       stopPolling = await pollAudio(audioTrack, canvas);
     } catch (error) {
+      showElements(previewBtn);
       console.error(error);
     }
   });
@@ -167,7 +181,7 @@ window.addEventListener("DOMContentLoaded", () => {
         },
       }
     ).then((res) => res.json());
-    joinForm.setAttribute("hidden", "hidden");
+    hideElements(joinForm);
     // initChat(token, roomName, [videoTrack, audioTrack, dataTrack], participants);
     room = await initChat(
       token,
@@ -175,11 +189,11 @@ window.addEventListener("DOMContentLoaded", () => {
       [videoTrack, dataTrack],
       participants
     );
+    showElements(participants, liveControls);
     hidePreview();
-    liveControls.removeAttribute("hidden");
     room.localParticipant.on("trackPublished", (track) => {
       if (track.kind === "data") {
-        reactions.removeAttribute("hidden");
+        showElements(reactions);
       }
     });
   });
@@ -192,10 +206,9 @@ window.addEventListener("DOMContentLoaded", () => {
     if (screenTrack) {
       stopScreenSharing();
     }
-    liveControls.setAttribute("hidden", "hidden");
-    reactions.setAttribute("hidden", "hidden");
+    hideElements(participants, liveControls, reactions);
     showPreview();
-    joinForm.removeAttribute("hidden");
+    showElements(joinForm);
     room = null;
   });
 
@@ -213,7 +226,6 @@ window.addEventListener("DOMContentLoaded", () => {
     } else {
       try {
         const screenStream = await navigator.mediaDevices.getDisplayMedia();
-        console.log(screenStream);
         screenTrack = new LocalVideoTrack(screenStream.getTracks()[0], {
           name: "user-screen",
         });

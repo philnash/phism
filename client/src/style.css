@@ -1,5 +1,9 @@
 @import "normalize.css";
 
+* {
+  box-sizing: border-box;
+}
+
 html {
   height: 100%;
 }
@@ -26,34 +30,60 @@ footer p {
   text-align: center;
 }
 
-.controls {
-  text-align: center;
+select {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5em;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
-main #local-preview video,
-main #local-preview canvas,
-main #local-preview .controls {
-  display: block;
-  width: 300px;
-  margin: 0 auto 1em;
+.card {
+  padding: 20px;
+  margin-top: 1em;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.02),
+    0 6.7px 5.3px rgba(0, 0, 0, 0.028), 0 12.5px 10px rgba(0, 0, 0, 0.035),
+    0 22.3px 17.9px rgba(0, 0, 0, 0.042), 0 41.8px 33.4px rgba(0, 0, 0, 0.05),
+    0 100px 80px rgba(0, 0, 0, 0.07);
 }
 
-#audio-preview {
-  height: 100px;
-  width: 50px;
+.local-preview.card {
+  width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.local-preview .video-preview {
   position: relative;
+  margin-bottom: 20px;
+  height: 0;
+  padding-top: 75%;
 }
-
-#audio-preview > div {
-  position: absolute;
-  bottom: 0;
+.local-preview video {
   width: 100%;
-  height: 0px;
-  background-color: #663399;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.local-preview canvas {
+  margin-bottom: 20px;
+}
+.local-preview .media-select {
+  margin-bottom: 1em;
+}
+.local-preview select {
+  display: block;
+  margin-top: 0.5em;
+  width: 100%;
+}
+.local-preview .media-select:last-child {
+  margin-bottom: 0;
 }
 
 /* reactions */
-
 #participants > li {
   position: relative;
 }

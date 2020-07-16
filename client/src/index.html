@@ -10,30 +10,34 @@
     <header><h1>Video Collaboration</h1></header>
 
     <main>
-      <div id="local-preview">
-        <div id="video-preview"></div>
+      <button id="media-preview">Preview camera and microphone</button>
+
+      <div id="local-preview" class="card local-preview" hidden>
+        <div id="video-preview" class="video-preview"></div>
         <canvas id="audio-data" width="300" height="100"></canvas>
         <div class="controls">
-          <div id="camera-selector"></div>
-          <div id="mic-selector"></div>
+          <div id="camera-selector" class="media-select"></div>
+          <div id="mic-selector" class="media-select"></div>
         </div>
       </div>
 
-      <div class="controls">
-        <button id="media-preview">Preview camera and microphone</button>
-        <form action="/tokens" method="POST" id="join-room" hidden>
-          <h2>Join room</h2>
-          <div class="form-input">
-            <label for="identity">Name</label>
-            <input type="text" name="identity" id="identity" />
-          </div>
-          <div class="form-input">
-            <label for="roomName">Room</label>
-            <input type="text" name="roomName" id="roomName" />
-          </div>
-          <button type="submit">Join room</button>
-        </form>
-        <div class="live" hidden>
+      <form action="/tokens" method="POST" id="join-room" hidden>
+        <h2>Join room</h2>
+        <div class="form-input">
+          <label for="identity">Name</label>
+          <input type="text" name="identity" id="identity" />
+        </div>
+        <div class="form-input">
+          <label for="roomName">Room</label>
+          <input type="text" name="roomName" id="roomName" />
+        </div>
+        <button type="submit">Join room</button>
+      </form>
+
+      <ul id="participants" hidden></ul>
+
+      <div class="live-controls" hidden>
+        <div>
           <button id="screen-share">Share screen</button>
           <button id="disconnect">Disconnect</button>
         </div>
@@ -53,8 +57,6 @@
           </ul>
         </div>
       </div>
-
-      <ul id="participants"></ul>
     </main>
 
     <footer>
