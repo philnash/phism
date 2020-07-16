@@ -21,7 +21,7 @@ const createVolumeMeter = async (track) => {
   const sampleArray = new Uint8Array(analyser.frequencyBinCount);
 
   const shutdown = () => {
-    analyser.disconnect();
+    source.disconnect(analyser);
   };
 
   const samples = () => {
@@ -45,16 +45,17 @@ const getVolume = async (track, callback) => {
       });
     }
   });
+  return shutdown;
 };
 
 const mapRange = (value, x1, y1, x2, y2) =>
   ((value - x1) * (y2 - x2)) / (y1 - x1) + x2;
 
-const pollAudio = (audioTrack, canvas) => {
+const pollAudio = async (audioTrack, canvas) => {
   const context = canvas.getContext("2d");
   const width = canvas.width;
   const height = canvas.height;
-  getVolume(audioTrack, (bufferLength, samples) => {
+  return await getVolume(audioTrack, (bufferLength, samples) => {
     context.fillStyle = "rgb(255, 255, 255)";
     context.fillRect(0, 0, width, height);
 

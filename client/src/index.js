@@ -2,11 +2,22 @@ import Video, { LocalVideoTrack, LocalDataTrack } from "twilio-video";
 import { pollAudio } from "./lib/volume-meter";
 import { initChat } from "./lib/video-chat";
 
-let videoTrack, audioTrack, screenTrack, dataTrack, room;
+let videoTrack,
+  videoPreview,
+  audioTrack,
+  screenTrack,
+  dataTrack,
+  room,
+  stopPolling;
+const localPreview = document.getElementById("local-preview");
 const videoPreviewDiv = document.getElementById("video-preview");
 const canvas = document.getElementById("audio-data");
 
-const attachTrack = (div, track) => div.appendChild(track.attach());
+const attachTrack = (div, track) => {
+  const mediaElement = track.attach();
+  div.appendChild(mediaElement);
+  return mediaElement;
+};
 const detachTrack = (track) => {
   if (track.kind !== "data") {
     const mediaElements = track.detach();
@@ -24,7 +35,7 @@ const createLocalVideoTrack = async (deviceId) => {
     const newVideoTrack = await Video.createLocalVideoTrack({
       deviceId: { exact: deviceId },
     });
-    attachTrack(videoPreviewDiv, newVideoTrack);
+    videoPreview = attachTrack(videoPreviewDiv, newVideoTrack);
     videoTrack = newVideoTrack;
     if (room) {
       room.localParticipant.publishTrack(videoTrack);
@@ -41,10 +52,26 @@ const createLocalAudioTrack = async (deviceId) => {
       deviceId: { exact: deviceId },
     });
     audioTrack = newAudioTrack;
-    pollAudio(audioTrack, canvas);
+    stopPolling = await pollAudio(audioTrack, canvas);
+    console.log(stopPolling);
   } catch (error) {
     console.error(error);
   }
+};
+
+const hidePreview = () => {
+  localPreview.setAttribute("hidden", "hidden");
+  videoPreview.pause();
+  if (stopPolling) {
+    stopPolling();
+    stopPolling = null;
+  }
+};
+
+const showPreview = async () => {
+  stopPolling = await pollAudio(audioTrack, canvas);
+  videoPreview.play();
+  localPreview.removeAttribute("hidden");
 };
 
 const buildDropDown = (options, currentDeviceName) => {
@@ -64,7 +91,7 @@ const buildDropDown = (options, currentDeviceName) => {
 window.addEventListener("DOMContentLoaded", () => {
   const previewBtn = document.getElementById("media-preview");
   const joinForm = document.getElementById("join-room");
-  const remoteParticipants = document.getElementById("remote-participants");
+  const participants = document.getElementById("participants");
   const liveControls = document.querySelector(".controls .live");
   const disconnectBtn = document.getElementById("disconnect");
   const screenShareBtn = document.getElementById("screen-share");
@@ -118,8 +145,8 @@ window.addEventListener("DOMContentLoaded", () => {
         console.error(e);
       }
 
-      attachTrack(videoPreviewDiv, videoTrack);
-      pollAudio(audioTrack, canvas);
+      videoPreview = attachTrack(videoPreviewDiv, videoTrack);
+      stopPolling = await pollAudio(audioTrack, canvas);
     } catch (error) {
       console.error(error);
     }
@@ -141,13 +168,14 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     ).then((res) => res.json());
     joinForm.setAttribute("hidden", "hidden");
-    // initChat(token, roomName, [videoTrack, audioTrack, dataTrack], remoteParticipants);
+    // initChat(token, roomName, [videoTrack, audioTrack, dataTrack], participants);
     room = await initChat(
       token,
       roomName,
       [videoTrack, dataTrack],
-      remoteParticipants
+      participants
     );
+    hidePreview();
     liveControls.removeAttribute("hidden");
     room.localParticipant.on("trackPublished", (track) => {
       if (track.kind === "data") {
@@ -166,6 +194,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     liveControls.setAttribute("hidden", "hidden");
     reactions.setAttribute("hidden", "hidden");
+    showPreview();
     joinForm.removeAttribute("hidden");
     room = null;
   });

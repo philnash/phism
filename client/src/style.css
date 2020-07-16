@@ -7,6 +7,18 @@ body {
   min-height: 100%;
   display: grid;
   grid-template-rows: auto 1fr auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+header,
+footer {
+  background-color: #631d59;
+  color: #fff;
+}
+header a,
+footer a {
+  color: #fff;
 }
 
 header h1,
@@ -18,9 +30,9 @@ footer p {
   text-align: center;
 }
 
-main #local-participant video,
-main #local-participant canvas,
-main #local-participant .controls {
+main #local-preview video,
+main #local-preview canvas,
+main #local-preview .controls {
   display: block;
   width: 300px;
   margin: 0 auto 1em;
@@ -37,12 +49,12 @@ main #local-participant .controls {
   bottom: 0;
   width: 100%;
   height: 0px;
-  background-color: rebeccapurple;
+  background-color: #663399;
 }
 
 /* reactions */
 
-#remote-participants > li {
+#participants > li {
   position: relative;
 }
 .reaction {

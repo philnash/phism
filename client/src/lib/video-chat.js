@@ -15,6 +15,7 @@ export const initChat = async (
     name: roomName,
     tracks: localTracks,
   });
+  participantConnected(room.localParticipant);
   room.on("participantConnected", participantConnected);
   room.on("participantDisconnected", participantDisconnected);
   room.participants.forEach(participantConnected);
@@ -57,7 +58,9 @@ const trackSubscribed = (participant) => {
   return (track) => {
     const item = participantItems.get(participant.sid);
     if (track.kind === "video" || track.kind === "audio") {
-      item.appendChild(track.attach());
+      const mediaElement = track.attach();
+      console.log(mediaElement);
+      item.appendChild(mediaElement);
     } else if (track.kind === "data") {
       const reactionDiv = document.createElement("div");
       reactionDiv.classList.add("reaction");
@@ -70,7 +73,7 @@ const trackSubscribed = (participant) => {
 const trackPublished = (participant) => {
   return (trackPub) => {
     if (trackPub.track) {
-      trackSubscribed(participant)(track);
+      trackSubscribed(participant)(trackPub.track);
     }
     trackPub.on("subscribed", trackSubscribed(participant));
     trackPub.on("unsubscribed", trackUnsubcribed);
