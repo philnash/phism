@@ -1,6 +1,6 @@
 import Video, { LocalVideoTrack, LocalDataTrack } from "twilio-video";
 import { pollAudio } from "./lib/volume-meter";
-import { initChat } from "./lib/video-chat";
+import { initChat, messageReceived } from "./lib/video-chat";
 import { hideElements, showElements } from "./lib/utils";
 
 let videoTrack,
@@ -197,6 +197,13 @@ window.addEventListener("DOMContentLoaded", () => {
       if (track.kind === "data") {
         showElements(reactions);
       }
+      const showReaction = messageReceived(room.localParticipant);
+      reactions.addEventListener("click", (event) => {
+        if (event.target.nodeName === "BUTTON") {
+          dataTrack.send(event.target.innerText);
+          showReaction(event.target.innerText);
+        }
+      });
     });
   });
 
@@ -237,12 +244,6 @@ window.addEventListener("DOMContentLoaded", () => {
       } catch (error) {
         console.error(error);
       }
-    }
-  });
-
-  reactions.addEventListener("click", (event) => {
-    if (event.target.nodeName === "BUTTON") {
-      dataTrack.send(event.target.innerText);
     }
   });
 });

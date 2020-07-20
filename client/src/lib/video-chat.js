@@ -25,7 +25,7 @@ export const initChat = async (
   return room;
 };
 
-const messageReceived = (participant) => {
+export const messageReceived = (participant) => {
   const participantItem = participantItems.get(participant.sid);
   const reactionDiv = participantItem.querySelector(".reaction");
   let reactionCount = 0;
