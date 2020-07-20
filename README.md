@@ -45,6 +45,8 @@ npm start
 - [ ] Live captions (Web Speech API)
 - [ ] Virtual background ([TensorFlow.js](https://blog.tensorflow.org/2019/11/updated-bodypix-2.html))
 
+https://hihayk.github.io/scale/#4/6/50/80/-51/60/20/14/663399/102/51/153/d-1
+
 ## License
 
 MIT (c) Phil Nash 2020

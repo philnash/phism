@@ -10,7 +10,9 @@
     <header><h1>Video Collaboration</h1></header>
 
     <main>
-      <button id="media-preview">Preview camera and microphone</button>
+      <div class="start">
+        <button id="media-preview">Preview camera and microphone</button>
+      </div>
 
       <div id="local-preview" class="card local-preview" hidden>
         <div id="video-preview" class="video-preview"></div>
@@ -34,27 +36,29 @@
         <button type="submit">Join room</button>
       </form>
 
-      <ul id="participants" hidden></ul>
+      <div class="video-chat" id="video-chat" hidden>
+        <ul id="participants" class="participants"></ul>
 
-      <div class="live-controls" hidden>
-        <div>
-          <button id="screen-share">Share screen</button>
-          <button id="disconnect">Disconnect</button>
-        </div>
-        <div id="reactions" hidden>
-          <ul>
-            <li><button>👍</button></li>
-            <li><button>👎</button></li>
-            <li><button>⏪</button></li>
-            <li><button>⏩</button></li>
-            <li><button>☕️</button></li>
-            <li><button>😂</button></li>
-            <li><button>👏</button></li>
-            <li><button>❤️</button></li>
-            <li><button>⏰</button></li>
-            <li><button>✋</button></li>
-            <li><button>🤦</button></li>
-          </ul>
+        <div class="live-controls">
+          <div>
+            <button id="screen-share">Share screen</button>
+            <button id="disconnect">Disconnect</button>
+          </div>
+          <div id="reactions" hidden>
+            <ul>
+              <li><button>👍</button></li>
+              <li><button>👎</button></li>
+              <li><button>⏪</button></li>
+              <li><button>⏩</button></li>
+              <li><button>☕️</button></li>
+              <li><button>😂</button></li>
+              <li><button>👏</button></li>
+              <li><button>❤️</button></li>
+              <li><button>⏰</button></li>
+              <li><button>✋</button></li>
+              <li><button>🤦</button></li>
+            </ul>
+          </div>
         </div>
       </div>
     </main>

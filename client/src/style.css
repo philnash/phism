@@ -83,10 +83,47 @@ select {
   margin-bottom: 0;
 }
 
-/* reactions */
-#participants > li {
-  position: relative;
+/* grid layout */
+
+.video-chat {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  height: 100%;
 }
+.video-chat[hidden] {
+  display: none;
+}
+
+.participants {
+  --grid-columns: 1;
+  --grid-rows: 1;
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), 1fr);
+  grid-template-rows: repeat(var(--grid-rows), 1fr);
+  padding: 0;
+  margin: 0;
+  background: #111;
+}
+.participants > li {
+  list-style: none;
+  display: flex;
+  align-items: center;
+}
+.participants .video-wrapper {
+  position: relative;
+  height: 0;
+  width: 100%;
+  padding-top: 75%;
+}
+
+.participants .video-wrapper video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+/* reactions */
 .reaction {
   position: absolute;
   top: 8px;

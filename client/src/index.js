@@ -100,6 +100,8 @@ const buildDropDown = (labelText, options, currentDeviceName) => {
 
 window.addEventListener("DOMContentLoaded", () => {
   const previewBtn = document.getElementById("media-preview");
+  const startDiv = document.querySelector(".start");
+  const videoChatDiv = document.getElementById("video-chat");
   const joinForm = document.getElementById("join-room");
   const participants = document.getElementById("participants");
   const liveControls = document.querySelector(".live-controls");
@@ -107,7 +109,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const screenShareBtn = document.getElementById("screen-share");
   const reactions = document.getElementById("reactions");
   previewBtn.addEventListener("click", async () => {
-    hideElements(previewBtn);
+    hideElements(startDiv);
     try {
       const tracks = await Video.createLocalTracks({
         video: {
@@ -118,7 +120,7 @@ window.addEventListener("DOMContentLoaded", () => {
           name: "user-audio",
         },
       });
-      previewBtn.remove();
+      startDiv.remove();
       showElements(localPreview, joinForm);
       videoTrack = tracks.find((track) => track.kind === "video");
       audioTrack = tracks.find((track) => track.kind === "audio");
@@ -161,7 +163,7 @@ window.addEventListener("DOMContentLoaded", () => {
       videoPreview = attachTrack(videoPreviewDiv, videoTrack);
       stopPolling = await pollAudio(audioTrack, canvas);
     } catch (error) {
-      showElements(previewBtn);
+      showElements(startDiv);
       console.error(error);
     }
   });
@@ -189,7 +191,7 @@ window.addEventListener("DOMContentLoaded", () => {
       [videoTrack, dataTrack],
       participants
     );
-    showElements(participants, liveControls);
+    showElements(videoChatDiv);
     hidePreview();
     room.localParticipant.on("trackPublished", (track) => {
       if (track.kind === "data") {

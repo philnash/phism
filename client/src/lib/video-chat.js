@@ -57,13 +57,14 @@ const messageReceived = (participant) => {
 const trackSubscribed = (participant) => {
   return (track) => {
     const item = participantItems.get(participant.sid);
+    const wrapper = item.querySelector(".video-wrapper");
     if (track.kind === "video" || track.kind === "audio") {
       const mediaElement = track.attach();
-      item.appendChild(mediaElement);
+      wrapper.appendChild(mediaElement);
     } else if (track.kind === "data") {
       const reactionDiv = document.createElement("div");
       reactionDiv.classList.add("reaction");
-      item.appendChild(reactionDiv);
+      wrapper.appendChild(reactionDiv);
       track.on("message", messageReceived(participant));
     }
   };
@@ -92,10 +93,37 @@ const trackUnpublished = (trackPub) => {
   }
 };
 
+const setRowsAndColumns = (room) => {
+  const numberOfParticipants = Array.from(room.participants.keys()).length + 1;
+  let rows, cols;
+  if (numberOfParticipants === 1) {
+    rows = 1;
+    cols = 1;
+  } else if (numberOfParticipants === 2) {
+    rows = 1;
+    cols = 2;
+  } else if (numberOfParticipants < 5) {
+    rows = 2;
+    cols = 2;
+  } else if (numberOfParticipants < 7) {
+    rows = 2;
+    cols = 3;
+  } else {
+    rows = 3;
+    cols = 3;
+  }
+  container.style.setProperty("--grid-rows", rows);
+  container.style.setProperty("--grid-columns", cols);
+};
+
 const participantConnected = (participant) => {
   const participantItem = document.createElement("li");
   participantItem.setAttribute("id", participant.sid);
+  const wrapper = document.createElement("div");
+  wrapper.classList.add("video-wrapper");
+  participantItem.appendChild(wrapper);
   container.appendChild(participantItem);
+  setRowsAndColumns(room);
   participantItems.set(participant.sid, participantItem);
   participant.tracks.forEach(trackPublished(participant));
   participant.on("trackPublished", trackPublished(participant));
@@ -106,6 +134,7 @@ const participantDisconnected = (participant) => {
   const item = participantItems.get(participant.sid);
   item.remove();
   participantItems.delete(participant.sid);
+  setRowsAndColumns(room);
 };
 
 const disconnected = (room, error) => {
