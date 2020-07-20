@@ -9,7 +9,8 @@ let videoTrack,
   screenTrack,
   dataTrack,
   room,
-  stopPolling;
+  stopPolling,
+  reactionListener;
 let choosingVideo = false;
 const localPreview = document.getElementById("local-preview");
 const videoPreviewDiv = document.getElementById("video-preview");
@@ -198,12 +199,13 @@ window.addEventListener("DOMContentLoaded", () => {
         showElements(reactions);
       }
       const showReaction = messageReceived(room.localParticipant);
-      reactions.addEventListener("click", (event) => {
+      reactionListener = (event) => {
         if (event.target.nodeName === "BUTTON") {
           dataTrack.send(event.target.innerText);
           showReaction(event.target.innerText);
         }
-      });
+      };
+      reactions.addEventListener("click", reactionListener);
     });
   });
 
@@ -215,7 +217,8 @@ window.addEventListener("DOMContentLoaded", () => {
     if (screenTrack) {
       stopScreenSharing();
     }
-    hideElements(participants, liveControls, reactions);
+    hideElements(videoChatDiv, reactions);
+    reactions.removeEventListener("click", reactionListener);
     showPreview();
     showElements(joinForm);
     room = null;

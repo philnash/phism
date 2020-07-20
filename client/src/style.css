@@ -30,6 +30,16 @@ footer p {
   text-align: center;
 }
 
+button {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background-color: #50163c;
+  color: #fff;
+  padding: 0.5em;
+  border-radius: 6px;
+}
+
 select {
   -moz-appearance: none;
   -webkit-appearance: none;
@@ -121,6 +131,25 @@ select {
   top: 0;
   left: 0;
   width: 100%;
+}
+
+.live-controls {
+  background-color: #060606;
+  padding: 0.5em;
+}
+.live-controls ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  margin-top: 0.5em;
+}
+.live-controls button {
+  margin-right: 2px;
+}
+.live-controls #reactions button {
+  border-radius: 50%;
+  font-size: 1.5em;
 }
 
 /* reactions */
