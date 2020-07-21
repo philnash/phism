@@ -218,6 +218,9 @@ window.addEventListener("DOMContentLoaded", () => {
       [videoTrack, audioTrack, dataTrack],
       participants
     );
+    if (!("getDisplayMedia" in navigator.mediaDevices)) {
+      screenShareBtn.remove();
+    }
     showElements(videoChatDiv);
     hidePreview();
 
