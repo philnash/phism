@@ -1,17 +1,18 @@
 import Video from "twilio-video";
 
-let room;
-let container;
-let dominantSpeaker;
+let room, container, dominantSpeaker;
+let reactions = [];
 let participantItems = new Map();
 
 export const initChat = async (
   token,
   roomName,
   localTracks,
-  participantsContainer
+  participantsContainer,
+  allowedReactions
 ) => {
   container = participantsContainer;
+  reactions = allowedReactions;
   room = await Video.connect(token, {
     name: roomName,
     tracks: localTracks,
@@ -49,7 +50,7 @@ export const messageReceived = (participant) => {
   let timeout;
   return (message) => {
     const data = JSON.parse(message);
-    if (data.action === "reaction") {
+    if (data.action === "reaction" && reactions.includes(data.reaction)) {
       const reaction = data.reaction;
       if (timeout) {
         clearTimeout(timeout);

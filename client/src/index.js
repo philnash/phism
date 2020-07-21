@@ -81,8 +81,10 @@ window.addEventListener("DOMContentLoaded", () => {
   const screenShareBtn = document.getElementById("screen-share");
   const muteBtn = document.getElementById("mute-self");
   const disableVideoBtn = document.getElementById("disable-video");
-  const reactions = document.getElementById("reactions");
-
+  const reactionsList = document.getElementById("reactions");
+  const reactions = Array.from(reactionsList.querySelectorAll("button")).map(
+    (btn) => btn.innerText
+  );
   const createLocalVideoTrack = async (deviceId) => {
     if (choosingVideo) {
       return;
@@ -216,7 +218,8 @@ window.addEventListener("DOMContentLoaded", () => {
       token,
       roomName,
       [videoTrack, audioTrack, dataTrack],
-      participants
+      participants,
+      reactions
     );
     if (!("getDisplayMedia" in navigator.mediaDevices)) {
       screenShareBtn.remove();
@@ -226,11 +229,14 @@ window.addEventListener("DOMContentLoaded", () => {
 
     room.localParticipant.on("trackPublished", (track) => {
       if (track.kind === "data") {
-        showElements(reactions);
+        showElements(reactionsList);
       }
       const showReaction = messageReceived(room.localParticipant);
       reactionListener = (event) => {
-        if (event.target.nodeName === "BUTTON") {
+        if (
+          event.target.nodeName === "BUTTON" &&
+          reactions.includes(event.target.innerText)
+        ) {
           const message = JSON.stringify({
             action: "reaction",
             reaction: event.target.innerText,
@@ -239,7 +245,7 @@ window.addEventListener("DOMContentLoaded", () => {
           showReaction(message);
         }
       };
-      reactions.addEventListener("click", reactionListener);
+      reactionsList.addEventListener("click", reactionListener);
     });
   });
 
@@ -251,8 +257,8 @@ window.addEventListener("DOMContentLoaded", () => {
     if (screenTrack) {
       stopScreenSharing();
     }
-    hideElements(videoChatDiv, reactions);
-    reactions.removeEventListener("click", reactionListener);
+    hideElements(videoChatDiv, reactionsList);
+    reactionsList.removeEventListener("click", reactionListener);
     showPreview();
     showElements(joinForm);
     room = null;
