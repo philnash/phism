@@ -282,11 +282,27 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  const unMuteOnSpaceBarDown = (event) => {
+    if (event.keyCode === 32) {
+      audioTrack.enable();
+    }
+  };
+
+  const muteOnSpaceBarUp = (event) => {
+    if (event.keyCode === 32) {
+      audioTrack.disable();
+    }
+  };
+
   muteBtn.addEventListener("click", () => {
     if (audioTrack.isEnabled) {
       audioTrack.disable();
+      document.addEventListener("keydown", unMuteOnSpaceBarDown);
+      document.addEventListener("keyup", muteOnSpaceBarUp);
     } else {
       audioTrack.enable();
+      document.removeEventListener("keydown", unMuteOnSpaceBarDown);
+      document.removeEventListener("keyup", muteOnSpaceBarUp);
     }
   });
 

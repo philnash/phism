@@ -40,10 +40,12 @@ npm start
 - [x] Emoji reactions 👎👍⏪⏩☕😂👏❤️⏰✋✅❌🤦
 - [x] Muting yourself and hiding video
 - [x] Dominant speaker detection
-- [ ] Push to talk
+- [x] Push to talk
 - [ ] Mute other
 - [ ] Joinable links for rooms
+- [ ] Code of conduct room joining barrier
 - [ ] Reconnecting logic
+- [ ] Group selfie button (does canvas allow this?)
 - [ ] Breakout rooms
 - [ ] Chat (Twilio Programmable Chat)
 - [ ] Live captions (Web Speech API)
