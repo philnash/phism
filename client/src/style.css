@@ -159,6 +159,8 @@ select {
   position: absolute;
   top: 8px;
   left: 8px;
+  right: 8px;
+  text-align: center;
 }
 
 .reaction.size-1 {
