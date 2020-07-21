@@ -28,43 +28,14 @@ const detachTrack = (track) => {
   }
 };
 
-const createLocalVideoTrack = async (deviceId) => {
-  if (choosingVideo) {
-    return;
-  }
-  choosingVideo = true;
-  try {
-    if (room) {
-      room.localParticipant.unpublishTrack(videoTrack);
-    }
-    videoTrack.stop();
-    detachTrack(videoTrack);
-    const newVideoTrack = await Video.createLocalVideoTrack({
-      deviceId: { exact: deviceId },
-    });
-    videoPreview = attachTrack(videoPreviewDiv, newVideoTrack);
-    videoTrack = newVideoTrack;
-    console.log(videoTrack);
-    if (room) {
-      room.localParticipant.publishTrack(videoTrack);
-    }
-    choosingVideo = false;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const createLocalAudioTrack = async (deviceId) => {
-  try {
-    audioTrack.stop();
-    const newAudioTrack = await Video.createLocalAudioTrack({
-      deviceId: { exact: deviceId },
-    });
-    audioTrack = newAudioTrack;
-    stopPolling = await pollAudio(audioTrack, canvas);
-  } catch (error) {
-    console.error(error);
-  }
+const setupTrackListeners = (track, button, enableLabel, disableLabel) => {
+  button.innerText = track.isEnabled ? disableLabel : enableLabel;
+  track.on("enabled", () => {
+    button.innerText = disableLabel;
+  });
+  track.on("disabled", () => {
+    button.innerText = enableLabel;
+  });
 };
 
 const hidePreview = () => {
@@ -108,7 +79,55 @@ window.addEventListener("DOMContentLoaded", () => {
   const liveControls = document.querySelector(".live-controls");
   const disconnectBtn = document.getElementById("disconnect");
   const screenShareBtn = document.getElementById("screen-share");
+  const muteBtn = document.getElementById("mute-self");
+  const disableVideoBtn = document.getElementById("disable-video");
   const reactions = document.getElementById("reactions");
+
+  const createLocalVideoTrack = async (deviceId) => {
+    if (choosingVideo) {
+      return;
+    }
+    choosingVideo = true;
+    try {
+      if (room) {
+        room.localParticipant.unpublishTrack(videoTrack);
+      }
+      videoTrack.stop();
+      detachTrack(videoTrack);
+      const newVideoTrack = await Video.createLocalVideoTrack({
+        deviceId: { exact: deviceId },
+      });
+      videoPreview = attachTrack(videoPreviewDiv, newVideoTrack);
+      videoTrack = newVideoTrack;
+      setupTrackListeners(
+        videoTrack,
+        disableVideoBtn,
+        "Enable video",
+        "Disable video"
+      );
+      if (room) {
+        room.localParticipant.publishTrack(videoTrack);
+      }
+      choosingVideo = false;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const createLocalAudioTrack = async (deviceId) => {
+    try {
+      audioTrack.stop();
+      const newAudioTrack = await Video.createLocalAudioTrack({
+        deviceId: { exact: deviceId },
+      });
+      audioTrack = newAudioTrack;
+      setupTrackListeners(audioTrack, muteBtn, "Unmute", "Mute");
+      stopPolling = await pollAudio(audioTrack, canvas);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   previewBtn.addEventListener("click", async () => {
     hideElements(startDiv);
     try {
@@ -126,6 +145,14 @@ window.addEventListener("DOMContentLoaded", () => {
       videoTrack = tracks.find((track) => track.kind === "video");
       audioTrack = tracks.find((track) => track.kind === "audio");
       dataTrack = new LocalDataTrack({ name: "user-data" });
+
+      setupTrackListeners(audioTrack, muteBtn, "Unmute", "Mute");
+      setupTrackListeners(
+        videoTrack,
+        disableVideoBtn,
+        "Enable video",
+        "Disable video"
+      );
 
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
@@ -185,15 +212,15 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     ).then((res) => res.json());
     hideElements(joinForm);
-    // initChat(token, roomName, [videoTrack, audioTrack, dataTrack], participants);
     room = await initChat(
       token,
       roomName,
-      [videoTrack, dataTrack],
+      [videoTrack, audioTrack, dataTrack],
       participants
     );
     showElements(videoChatDiv);
     hidePreview();
+
     room.localParticipant.on("trackPublished", (track) => {
       if (track.kind === "data") {
         showElements(reactions);
@@ -247,6 +274,22 @@ window.addEventListener("DOMContentLoaded", () => {
       } catch (error) {
         console.error(error);
       }
+    }
+  });
+
+  muteBtn.addEventListener("click", () => {
+    if (audioTrack.isEnabled) {
+      audioTrack.disable();
+    } else {
+      audioTrack.enable();
+    }
+  });
+
+  disableVideoBtn.addEventListener("click", () => {
+    if (videoTrack.isEnabled) {
+      videoTrack.disable();
+    } else {
+      videoTrack.enable();
     }
   });
 });
