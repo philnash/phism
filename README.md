@@ -38,8 +38,12 @@ npm start
 - [x] Disconnect from room
 - [x] Screen sharing
 - [x] Emoji reactions 👎👍⏪⏩☕😂👏❤️⏰✋✅❌🤦
-- [ ] Muting yourself and hiding video
-- [ ] Dominant speaker detection
+- [x] Muting yourself and hiding video
+- [x] Dominant speaker detection
+- [ ] Push to talk
+- [ ] Mute other
+- [ ] Joinable links for rooms
+- [ ] Reconnecting logic
 - [ ] Breakout rooms
 - [ ] Chat (Twilio Programmable Chat)
 - [ ] Live captions (Web Speech API)
