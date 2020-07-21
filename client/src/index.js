@@ -231,8 +231,12 @@ window.addEventListener("DOMContentLoaded", () => {
       const showReaction = messageReceived(room.localParticipant);
       reactionListener = (event) => {
         if (event.target.nodeName === "BUTTON") {
-          dataTrack.send(event.target.innerText);
-          showReaction(event.target.innerText);
+          const message = JSON.stringify({
+            action: "reaction",
+            reaction: event.target.innerText,
+          });
+          dataTrack.send(message);
+          showReaction(message);
         }
       };
       reactions.addEventListener("click", reactionListener);

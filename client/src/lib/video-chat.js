@@ -47,27 +47,31 @@ export const messageReceived = (participant) => {
   const reactionDiv = participantItem.querySelector(".reaction");
   let reactionCount = 0;
   let timeout;
-  return (data) => {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-    if (reactionDiv.innerText === data) {
-      if (reactionCount < 5) {
+  return (message) => {
+    const data = JSON.parse(message);
+    if (data.action === "reaction") {
+      const reaction = data.reaction;
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      if (reactionDiv.innerText === reaction) {
+        if (reactionCount < 5) {
+          reactionDiv.classList.remove(`size-${reactionCount}`);
+          reactionCount += 1;
+          reactionDiv.classList.add(`size-${reactionCount}`);
+        }
+      } else {
+        reactionDiv.innerText = reaction;
         reactionDiv.classList.remove(`size-${reactionCount}`);
-        reactionCount += 1;
+        reactionCount = 1;
         reactionDiv.classList.add(`size-${reactionCount}`);
       }
-    } else {
-      reactionDiv.innerText = data;
-      reactionDiv.classList.remove(`size-${reactionCount}`);
-      reactionCount = 1;
-      reactionDiv.classList.add(`size-${reactionCount}`);
+      timeout = setTimeout(() => {
+        reactionDiv.innerText = "";
+        reactionDiv.classList.remove(`size-${reactionCount}`);
+        reactionCount = 0;
+      }, 5000);
     }
-    timeout = setTimeout(() => {
-      reactionDiv.innerText = "";
-      reactionDiv.classList.remove(`size-${reactionCount}`);
-      reactionCount = 0;
-    }, 5000);
   };
 };
 
