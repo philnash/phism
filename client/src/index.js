@@ -265,11 +265,13 @@ window.addEventListener("DOMContentLoaded", () => {
     } else {
       try {
         const screenStream = await navigator.mediaDevices.getDisplayMedia();
-        screenTrack = new LocalVideoTrack(screenStream.getTracks()[0], {
+        const track = screenStream.getTracks()[0];
+        screenTrack = new LocalVideoTrack(track, {
           name: "user-screen",
         });
         room.localParticipant.publishTrack(screenTrack);
         attachTrack(videoPreviewDiv, screenTrack);
+        track.addEventListener("ended", stopScreenSharing);
         screenShareBtn.innerText = "Stop sharing";
       } catch (error) {
         console.error(error);
