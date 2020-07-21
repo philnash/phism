@@ -58,9 +58,24 @@ const trackSubscribed = (participant) => {
   return (track) => {
     const item = participantItems.get(participant.sid);
     const wrapper = item.querySelector(".video-wrapper");
-    if (track.kind === "video" || track.kind === "audio") {
-      const mediaElement = track.attach();
-      wrapper.appendChild(mediaElement);
+    const info = item.querySelector(".info");
+    if (track.kind === "video") {
+      const videoElement = track.attach();
+      wrapper.appendChild(videoElement);
+    } else if (track.kind === "audio") {
+      const audioElement = track.attach();
+      wrapper.appendChild(audioElement);
+      const mutedHTML = document.createElement("p");
+      mutedHTML.appendChild(document.createTextNode("🔇"));
+      if (!track.isEnabled) {
+        info.appendChild(mutedHTML);
+      }
+      track.on("enabled", () => {
+        mutedHTML.remove();
+      });
+      track.on("disabled", () => {
+        info.appendChild(mutedHTML);
+      });
     } else if (track.kind === "data") {
       const reactionDiv = document.createElement("div");
       reactionDiv.classList.add("reaction");
@@ -121,6 +136,9 @@ const participantConnected = (participant) => {
   participantItem.setAttribute("id", participant.sid);
   const wrapper = document.createElement("div");
   wrapper.classList.add("video-wrapper");
+  const info = document.createElement("div");
+  info.classList.add("info");
+  wrapper.appendChild(info);
   participantItem.appendChild(wrapper);
   container.appendChild(participantItem);
   setRowsAndColumns(room);
