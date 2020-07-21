@@ -120,6 +120,9 @@ select {
   display: flex;
   align-items: center;
 }
+.participants > li.dominant video {
+  border: 4px solid #631d59;
+}
 .participants .video-wrapper {
   position: relative;
   height: 0;

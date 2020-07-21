@@ -2,6 +2,7 @@ import Video from "twilio-video";
 
 let room;
 let container;
+let dominantSpeaker;
 let participantItems = new Map();
 
 export const initChat = async (
@@ -14,12 +15,28 @@ export const initChat = async (
   room = await Video.connect(token, {
     name: roomName,
     tracks: localTracks,
+    dominantSpeaker: true,
   });
   participantConnected(room.localParticipant);
   room.on("participantConnected", participantConnected);
   room.on("participantDisconnected", participantDisconnected);
   room.participants.forEach(participantConnected);
   room.on("disconnected", disconnected);
+  room.on("dominantSpeakerChanged", (participant) => {
+    if (dominantSpeaker) {
+      participantItems.get(dominantSpeaker.sid).classList.remove("dominant");
+    }
+    let participantItem;
+    if (participant) {
+      participantItem = participantItems.get(participant.sid);
+      dominantSpeaker = participant;
+    } else {
+      participantItem = participantItems.get(room.localParticipant.sid);
+      dominantSpeaker = room.localParticipant;
+    }
+    participantItem.classList.add("dominant");
+    console.log("The new dominant speaker in the Room is:", participant);
+  });
   window.addEventListener("beforeunload", tidyUp);
   window.addEventListener("pagehide", tidyUp);
   return room;
