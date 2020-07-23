@@ -217,7 +217,7 @@ window.addEventListener("DOMContentLoaded", () => {
     room = await initChat(
       token,
       roomName,
-      [videoTrack, audioTrack, dataTrack],
+      { videoTrack, audioTrack, dataTrack },
       participants,
       reactions
     );

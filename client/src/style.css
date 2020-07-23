@@ -130,6 +130,13 @@ select {
   padding-top: 75%;
 }
 
+.participants .actions {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 10;
+}
+
 .participants .video-wrapper video {
   position: absolute;
   top: 0;

@@ -1,6 +1,6 @@
 import Video from "twilio-video";
 
-let room, container, dominantSpeaker;
+let room, container, dominantSpeaker, dataTrack, audioTrack;
 let reactions = [];
 let participantItems = new Map();
 
@@ -13,9 +13,11 @@ export const initChat = async (
 ) => {
   container = participantsContainer;
   reactions = allowedReactions;
+  dataTrack = localTracks.dataTrack;
+  audioTrack = localTracks.audioTrack;
   room = await Video.connect(token, {
     name: roomName,
-    tracks: localTracks,
+    tracks: Object.values(localTracks),
     dominantSpeaker: true,
   });
   participantConnected(room.localParticipant);
@@ -71,6 +73,18 @@ export const messageReceived = (participant) => {
         reactionDiv.classList.remove(`size-${reactionCount}`);
         reactionCount = 0;
       }, 5000);
+    } else if (
+      data.action === "mute" &&
+      room.localParticipant.sid === data.participantSid &&
+      audioTrack.isEnabled
+    ) {
+      audioTrack.disable();
+    } else if (
+      data.action === "unmute" &&
+      room.localParticipant.sid === data.participantSid &&
+      !audioTrack.isEnabled
+    ) {
+      audioTrack.enable();
     }
   };
 };
@@ -80,6 +94,7 @@ const trackSubscribed = (participant) => {
     const item = participantItems.get(participant.sid);
     const wrapper = item.querySelector(".video-wrapper");
     const info = item.querySelector(".info");
+    const muteBtn = item.querySelector(".actions button");
     if (track.kind === "video") {
       const videoElement = track.attach();
       wrapper.appendChild(videoElement);
@@ -89,15 +104,37 @@ const trackSubscribed = (participant) => {
       const mutedHTML = document.createElement("p");
       mutedHTML.appendChild(document.createTextNode("🔇"));
       if (!track.isEnabled) {
+        if (muteBtn) {
+          muteBtn.innerText = "Unmute";
+        }
         info.appendChild(mutedHTML);
       }
       track.on("enabled", () => {
+        if (muteBtn) {
+          muteBtn.innerText = "Mute";
+        }
         mutedHTML.remove();
       });
       track.on("disabled", () => {
+        if (muteBtn) {
+          muteBtn.innerText = "Unmute";
+        }
         info.appendChild(mutedHTML);
       });
     } else if (track.kind === "data") {
+      if (participant !== room.localParticipant) {
+        const mute = item.querySelector(".actions button");
+        mute.addEventListener("click", () => {
+          const action = mute.innerText.toLowerCase();
+          if (["mute", "unmute"].includes(action)) {
+            const message = JSON.stringify({
+              action,
+              participantSid: participant.sid,
+            });
+            dataTrack.send(message);
+          }
+        });
+      }
       const reactionDiv = document.createElement("div");
       reactionDiv.classList.add("reaction");
       wrapper.appendChild(reactionDiv);
@@ -161,6 +198,14 @@ const participantConnected = (participant) => {
   info.classList.add("info");
   wrapper.appendChild(info);
   participantItem.appendChild(wrapper);
+  if (participant !== room.localParticipant) {
+    const actions = document.createElement("div");
+    actions.classList.add("actions");
+    const mute = document.createElement("button");
+    mute.appendChild(document.createTextNode("mute"));
+    actions.appendChild(mute);
+    wrapper.appendChild(actions);
+  }
   container.appendChild(participantItem);
   setRowsAndColumns(room);
   participantItems.set(participant.sid, participantItem);

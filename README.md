@@ -41,7 +41,7 @@ npm start
 - [x] Muting yourself and hiding video
 - [x] Dominant speaker detection
 - [x] Push to talk
-- [ ] Mute other
+- [x] Mute other
 - [ ] Joinable links for rooms
 - [ ] Code of conduct room joining barrier
 - [ ] Reconnecting logic
