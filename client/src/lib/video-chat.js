@@ -36,7 +36,6 @@ export const initChat = async (
       dominantSpeaker = room.localParticipant;
     }
     participantItem.classList.add("dominant");
-    console.log("The new dominant speaker in the Room is:", participant);
   });
   window.addEventListener("beforeunload", tidyUp);
   window.addEventListener("pagehide", tidyUp);
