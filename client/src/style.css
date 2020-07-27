@@ -24,6 +24,15 @@ header a,
 footer a {
   color: #fff;
 }
+header h1 {
+  font-size: 2em;
+  margin: 0.75em;
+  line-height: 1;
+}
+footer p {
+  font-size: 1em;
+  margin: 1em;
+}
 
 header h1,
 footer p {
@@ -38,6 +47,9 @@ button {
   color: #fff;
   padding: 0.5em;
   border-radius: 6px;
+}
+button[disabled] {
+  opacity: 0.5;
 }
 
 select {
@@ -100,9 +112,13 @@ select {
   display: grid;
   grid-template-rows: 1fr auto;
   height: 100%;
+  background-color: #111;
 }
 .video-chat[hidden] {
   display: none;
+}
+.video-chat.screen-share {
+  grid-template-rows: 1fr 100px auto;
 }
 
 .participants {
@@ -113,8 +129,8 @@ select {
   grid-template-rows: repeat(var(--grid-rows), 1fr);
   padding: 0;
   margin: 0;
-  background: #111;
 }
+
 .participants > li {
   list-style: none;
   display: flex;
@@ -125,25 +141,18 @@ select {
 }
 .participants .video-wrapper {
   position: relative;
-  height: 0;
   width: 100%;
-  padding-top: 75%;
+  max-height: calc(100vh - 15rem);
 }
-
 .participants .actions {
   position: absolute;
   bottom: 8px;
   right: 8px;
   z-index: 10;
 }
-
 .participants .video-wrapper video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  max-height: 100%;
   width: 100%;
-  z-index: 1;
+  max-height: inherit;
 }
 
 .participants .video-wrapper .info {
@@ -166,6 +175,25 @@ select {
   background: #060606;
 }
 
+.screen-share .participants {
+  display: flex;
+  flex-direction: row;
+}
+.screen-share .participants .video-wrapper {
+  max-height: 100px;
+}
+.video-chat.screen-share #screen {
+  position: relative;
+  width: 100%;
+  max-height: calc(100vh - 15rem - 100px);
+  display: flex;
+  align-content: center;
+}
+.video-chat.screen-share #screen video {
+  max-height: inherit;
+  width: 100%;
+}
+
 .live-controls {
   background-color: #060606;
   padding: 0.5em;
@@ -179,6 +207,7 @@ select {
 }
 .live-controls button {
   margin-right: 2px;
+  line-height: 1;
 }
 .live-controls #reactions button {
   border-radius: 50%;

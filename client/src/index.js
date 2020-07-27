@@ -21,12 +21,6 @@ const attachTrack = (div, track) => {
   div.appendChild(mediaElement);
   return mediaElement;
 };
-const detachTrack = (track) => {
-  if (track.kind !== "data") {
-    const mediaElements = track.detach();
-    mediaElements.forEach((mediaElement) => mediaElement.remove());
-  }
-};
 
 const setupTrackListeners = (track, button, enableLabel, disableLabel) => {
   button.innerText = track.isEnabled ? disableLabel : enableLabel;
@@ -74,6 +68,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const previewBtn = document.getElementById("media-preview");
   const startDiv = document.querySelector(".start");
   const videoChatDiv = document.getElementById("video-chat");
+  const screenDiv = document.getElementById("screen");
   const joinForm = document.getElementById("join-room");
   const participants = document.getElementById("participants");
   const liveControls = document.querySelector(".live-controls");
@@ -113,6 +108,17 @@ window.addEventListener("DOMContentLoaded", () => {
       choosingVideo = false;
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const detachTrack = (track) => {
+    if (track.kind !== "data") {
+      const mediaElements = track.detach();
+      mediaElements.forEach((mediaElement) => mediaElement.remove());
+      if (track.name === "user-screen") {
+        hideElements(screenDiv);
+        videoChatDiv.classList.remove("screen-share");
+      }
     }
   };
 

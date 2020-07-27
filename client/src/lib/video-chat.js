@@ -1,6 +1,14 @@
 import Video from "twilio-video";
+import { showElements, hideElements } from "./utils";
 
-let room, container, dominantSpeaker, dataTrack, audioTrack;
+let room,
+  container,
+  dominantSpeaker,
+  dataTrack,
+  audioTrack,
+  screenDiv,
+  chatDiv,
+  screenButton;
 let reactions = [];
 let participantItems = new Map();
 
@@ -15,6 +23,9 @@ export const initChat = async (
   reactions = allowedReactions;
   dataTrack = localTracks.dataTrack;
   audioTrack = localTracks.audioTrack;
+  screenDiv = document.getElementById("screen");
+  chatDiv = document.getElementById("video-chat");
+  screenButton = document.getElementById("screen-share");
   room = await Video.connect(token, {
     name: roomName,
     tracks: Object.values(localTracks),
@@ -97,7 +108,16 @@ const trackSubscribed = (participant) => {
     const muteBtn = item.querySelector(".actions button");
     if (track.kind === "video") {
       const videoElement = track.attach();
-      wrapper.appendChild(videoElement);
+      if (track.name === "user-screen") {
+        chatDiv.classList.add("screen-share");
+        screenDiv.appendChild(videoElement);
+        showElements(screenDiv);
+        if (participant !== room.localParticipant) {
+          screenButton.setAttribute("disabled", "disabled");
+        }
+      } else {
+        wrapper.appendChild(videoElement);
+      }
     } else if (track.kind === "audio") {
       const audioElement = track.attach();
       wrapper.appendChild(audioElement);
@@ -149,15 +169,24 @@ const trackPublished = (participant) => {
       trackSubscribed(participant)(trackPub.track);
     }
     trackPub.on("subscribed", trackSubscribed(participant));
-    trackPub.on("unsubscribed", trackUnsubcribed);
+    trackPub.on("unsubscribed", trackUnsubcribed(participant));
   };
 };
 
-const trackUnsubcribed = (track) => {
-  if (track.kind !== "data") {
-    const mediaElements = track.detach();
-    mediaElements.forEach((mediaElement) => mediaElement.remove());
-  }
+const trackUnsubcribed = (participant) => {
+  return (track) => {
+    if (track.kind !== "data") {
+      const mediaElements = track.detach();
+      mediaElements.forEach((mediaElement) => mediaElement.remove());
+      if (track.name === "user-screen") {
+        hideElements(screenDiv);
+        chatDiv.classList.remove("screen-share");
+        if (participant !== room.localParticipant) {
+          screenButton.removeAttribute("disabled");
+        }
+      }
+    }
+  };
 };
 
 const trackUnpublished = (trackPub) => {
