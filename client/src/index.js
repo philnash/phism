@@ -180,7 +180,6 @@ window.addEventListener("DOMContentLoaded", () => {
           name: "user-screen",
         });
         room.localParticipant.publishTrack(screenTrack);
-        attachTrack(videoPreviewDiv, screenTrack);
         track.addEventListener("ended", stopScreenSharing);
         screenShareBtn.innerText = "Stop sharing";
       } catch (error) {
