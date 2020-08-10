@@ -4,7 +4,39 @@ const hideElements = (...elements) =>
 const showElements = (...elements) =>
   elements.forEach((el) => el.removeAttribute("hidden"));
 
+const buildDropDown = (labelText, options, selected) => {
+  const label = document.createElement("label");
+  label.appendChild(document.createTextNode(labelText));
+  const select = document.createElement("select");
+  options.forEach((opt) => {
+    const option = document.createElement("option");
+    option.setAttribute("value", opt.value);
+    if (opt.label === selected) {
+      option.setAttribute("selected", "selected");
+    }
+    option.appendChild(document.createTextNode(opt.label));
+    select.appendChild(option);
+  });
+  label.appendChild(select);
+  return label;
+};
+
+const attachTrack = (div, track) => {
+  const mediaElement = track.attach();
+  div.appendChild(mediaElement);
+  return mediaElement;
+};
+
+const detachTrack = (track) => {
+  track.detach().forEach((mediaElement) => {
+    mediaElement.remove();
+  });
+};
+
 module.exports = {
   hideElements,
   showElements,
+  buildDropDown,
+  attachTrack,
+  detachTrack,
 };
