@@ -1,10 +1,6 @@
 import Video from "twilio-video";
 import { showElements, hideElements } from "./utils";
 
-// Hey Phil, the next thing to do is move all the functions inside this class.
-// And then after that, dispatch custom events so that the outside doesn't need
-// to know about the internals of the chat.
-
 export class VideoChat extends EventTarget {
   constructor(token, roomName, localTracks, allowedReactions) {
     super();
