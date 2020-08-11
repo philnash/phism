@@ -1,6 +1,6 @@
 import Video, { LocalVideoTrack, LocalDataTrack } from "twilio-video";
-import { initChat, messageReceived } from "./lib/video-chat";
-import { hideElements, showElements, attachTrack } from "./lib/utils";
+import { VideoChat } from "./lib/video-chat";
+import { hideElements, showElements } from "./lib/utils";
 import LocalPreview from "./lib/localPreview";
 
 let videoTrack,
@@ -8,8 +8,8 @@ let videoTrack,
   localPreview,
   screenTrack,
   dataTrack,
-  room,
-  reactionListener;
+  reactionListener,
+  videoChat;
 const videoPreviewDiv = document.getElementById("video-preview");
 
 const setupTrackListeners = (track, button, enableLabel, disableLabel) => {
@@ -28,7 +28,6 @@ window.addEventListener("DOMContentLoaded", () => {
   const videoChatDiv = document.getElementById("video-chat");
   const screenDiv = document.getElementById("screen");
   const joinForm = document.getElementById("join-room");
-  const participants = document.getElementById("participants");
   const disconnectBtn = document.getElementById("disconnect");
   const screenShareBtn = document.getElementById("screen-share");
   const muteBtn = document.getElementById("mute-self");
@@ -111,11 +110,10 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     ).then((res) => res.json());
     hideElements(joinForm);
-    room = await initChat(
+    videoChat = new VideoChat(
       token,
       roomName,
       { videoTrack, audioTrack, dataTrack },
-      participants,
       reactions
     );
     if (!("getDisplayMedia" in navigator.mediaDevices)) {
@@ -124,11 +122,10 @@ window.addEventListener("DOMContentLoaded", () => {
     showElements(videoChatDiv);
     localPreview.hide();
 
-    room.localParticipant.on("trackPublished", (track) => {
-      if (track.kind === "data") {
-        showElements(reactionsList);
-      }
-      const showReaction = messageReceived(room.localParticipant);
+    videoChat.addEventListener("data-track-published", (event) => {
+      const localParticipant = event.detail.participant;
+      showElements(reactionsList);
+      const showReaction = videoChat.messageReceived(localParticipant);
       reactionListener = (event) => {
         if (
           event.target.nodeName === "BUTTON" &&
@@ -147,10 +144,10 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   disconnectBtn.addEventListener("click", () => {
-    if (!room) {
+    if (!videoChat) {
       return;
     }
-    room.disconnect();
+    videoChat.disconnect();
     if (screenTrack) {
       stopScreenSharing();
     }
@@ -158,12 +155,12 @@ window.addEventListener("DOMContentLoaded", () => {
     reactionsList.removeEventListener("click", reactionListener);
     localPreview.show();
     showElements(joinForm);
-    room = null;
+    videoChat = null;
   });
 
   const stopScreenSharing = () => {
     detachTrack(screenTrack);
-    room.localParticipant.unpublishTrack(screenTrack);
+    videoChat.stopScreenShare(screenTrack);
     screenTrack.stop();
     screenTrack = null;
     screenShareBtn.innerText = "Share screen";
@@ -179,7 +176,7 @@ window.addEventListener("DOMContentLoaded", () => {
         screenTrack = new LocalVideoTrack(track, {
           name: "user-screen",
         });
-        room.localParticipant.publishTrack(screenTrack);
+        videoChat.startScreenShare(screenTrack);
         track.addEventListener("ended", stopScreenSharing);
         screenShareBtn.innerText = "Stop sharing";
       } catch (error) {
