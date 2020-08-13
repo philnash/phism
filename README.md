@@ -42,6 +42,7 @@ npm start
 - [x] Dominant speaker detection
 - [x] Push to talk
 - [x] Mute other
+- [ ] Whiteboard
 - [ ] Joinable links for rooms
 - [ ] Code of conduct room joining barrier
 - [ ] Reconnecting logic

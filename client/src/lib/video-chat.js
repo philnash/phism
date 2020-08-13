@@ -14,7 +14,6 @@ export class VideoChat extends EventTarget {
     this.screenButton = document.getElementById("screen-share");
     this.dominantSpeaker = null;
     this.participantItems = new Map();
-    this.init(token, roomName);
     this.participantConnected = this.participantConnected.bind(this);
     this.participantDisconnected = this.participantDisconnected.bind(this);
     this.trackPublished = this.trackPublished.bind(this);
@@ -28,6 +27,14 @@ export class VideoChat extends EventTarget {
       this
     );
     this.tidyUp = this.tidyUp.bind(this);
+    this.init(token, roomName);
+  }
+
+  whiteboardStarted(whiteboard) {
+    this.whiteboard = whiteboard;
+  }
+  whiteboardStopped() {
+    this.whiteboard = null;
   }
 
   async init(token, roomName) {
@@ -149,6 +156,14 @@ export class VideoChat extends EventTarget {
               this.dataTrack.send(message);
             }
           });
+          if (this.whiteboard) {
+            const message = JSON.stringify({
+              action: "whiteboard",
+              event: "started",
+              existingLines: this.whiteboard.lines,
+            });
+            this.dataTrack.send(message);
+          }
         }
         const reactionDiv = document.createElement("div");
         reactionDiv.classList.add("reaction");
@@ -256,6 +271,22 @@ export class VideoChat extends EventTarget {
         !this.audioTrack.isEnabled
       ) {
         this.audioTrack.enable();
+      } else if (data.action === "whiteboard") {
+        if (data.event === "started") {
+          console.log(data);
+          const whiteboardStartedEvent = new CustomEvent("whiteboard-started", {
+            detail: data.existingLines,
+          });
+          this.dispatchEvent(whiteboardStartedEvent);
+        } else if (data.event === "stopped") {
+          const whiteboardStoppedEvent = new Event("whiteboard-stopped");
+          this.dispatchEvent(whiteboardStoppedEvent);
+        } else {
+          const whiteboardDrawEvent = new CustomEvent("whiteboard-draw", {
+            detail: data.event,
+          });
+          this.dispatchEvent(whiteboardDrawEvent);
+        }
       }
     };
   }

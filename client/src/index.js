@@ -2,6 +2,7 @@ import Video, { LocalVideoTrack, LocalDataTrack } from "twilio-video";
 import { VideoChat } from "./lib/video-chat";
 import { hideElements, showElements } from "./lib/utils";
 import LocalPreview from "./lib/localPreview";
+import { Whiteboard } from "./lib/whiteboard";
 
 let videoTrack,
   audioTrack,
@@ -9,8 +10,8 @@ let videoTrack,
   screenTrack,
   dataTrack,
   reactionListener,
-  videoChat;
-const videoPreviewDiv = document.getElementById("video-preview");
+  videoChat,
+  whiteboard;
 
 const setupTrackListeners = (track, button, enableLabel, disableLabel) => {
   button.innerText = track.isEnabled ? disableLabel : enableLabel;
@@ -33,6 +34,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const muteBtn = document.getElementById("mute-self");
   const disableVideoBtn = document.getElementById("disable-video");
   const reactionsList = document.getElementById("reactions");
+  const whiteboardBtn = document.getElementById("whiteboard");
   const reactions = Array.from(reactionsList.querySelectorAll("button")).map(
     (btn) => btn.innerText
   );
@@ -140,6 +142,21 @@ window.addEventListener("DOMContentLoaded", () => {
         }
       };
       reactionsList.addEventListener("click", reactionListener);
+
+      whiteboardBtn.removeAttribute("hidden");
+    });
+
+    videoChat.addEventListener("whiteboard-started", (event) => {
+      startWhiteboard(event.detail);
+    });
+
+    videoChat.addEventListener("whiteboard-stopped", () => {
+      stopWhiteboard();
+    });
+
+    videoChat.addEventListener("whiteboard-draw", (event) => {
+      whiteboard.drawOnCanvas(event.detail);
+      whiteboard.saveLine(event.detail);
     });
   });
 
@@ -150,6 +167,9 @@ window.addEventListener("DOMContentLoaded", () => {
     videoChat.disconnect();
     if (screenTrack) {
       stopScreenSharing();
+    }
+    if (whiteboard) {
+      stopWhiteboard();
     }
     hideElements(videoChatDiv, reactionsList);
     reactionsList.removeEventListener("click", reactionListener);
@@ -185,6 +205,24 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  whiteboardBtn.addEventListener("click", () => {
+    if (whiteboard) {
+      stopWhiteboard();
+      const message = JSON.stringify({
+        action: "whiteboard",
+        event: "stopped",
+      });
+      dataTrack.send(message);
+    } else {
+      startWhiteboard();
+      const message = JSON.stringify({
+        action: "whiteboard",
+        event: "started",
+      });
+      dataTrack.send(message);
+    }
+  });
+
   const unMuteOnSpaceBarDown = (event) => {
     if (event.keyCode === 32) {
       audioTrack.enable();
@@ -216,4 +254,40 @@ window.addEventListener("DOMContentLoaded", () => {
       videoTrack.enable();
     }
   });
+
+  const startWhiteboard = (existingLines) => {
+    const lines = existingLines || [];
+    if (whiteboard) {
+      return;
+    }
+    whiteboard = new Whiteboard(videoChatDiv);
+    lines.forEach((line) => {
+      whiteboard.drawOnCanvas(line);
+      whiteboard.saveLine(line);
+    });
+    videoChatDiv.classList.add("screen-share");
+    whiteboardBtn.innerText = "Stop whiteboard";
+    videoChat.whiteboardStarted(whiteboard);
+    whiteboard.addEventListener("draw", (event) => {
+      dataTrack.send(
+        JSON.stringify({
+          action: "whiteboard",
+          event: event.detail.plots,
+        })
+      );
+    });
+  };
+
+  const stopWhiteboard = () => {
+    if (!whiteboard) {
+      return;
+    }
+    whiteboard.destroy();
+    whiteboard = null;
+    videoChatDiv.classList.remove("screen-share");
+    whiteboardBtn.innerText = "Start whiteboard";
+    if (videoChat) {
+      videoChat.whiteboardStopped();
+    }
+  };
 });
