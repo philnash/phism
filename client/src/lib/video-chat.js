@@ -9,7 +9,7 @@ export class VideoChat extends EventTarget {
     this.dataTrack = localTracks.dataTrack;
     this.reactions = allowedReactions;
     this.container = document.getElementById("participants");
-    this.screenDiv = document.getElementById("screen");
+    this.screenDiv = document.getElementById("activity");
     this.chatDiv = document.getElementById("video-chat");
     this.screenButton = document.getElementById("screen-share");
     this.dominantSpeaker = null;
@@ -273,7 +273,6 @@ export class VideoChat extends EventTarget {
         this.audioTrack.enable();
       } else if (data.action === "whiteboard") {
         if (data.event === "started") {
-          console.log(data);
           const whiteboardStartedEvent = new CustomEvent("whiteboard-started", {
             detail: data.existingLines,
           });

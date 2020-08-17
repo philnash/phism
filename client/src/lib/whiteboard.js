@@ -22,13 +22,16 @@ const upEvent = isTouchSupported
 export class Whiteboard extends EventTarget {
   constructor(container) {
     super();
+    this.container = container;
+    this.wrapper = document.createElement("div");
+    this.wrapper.classList.add("whiteboard-wrapper");
     this.canvas = document.createElement("canvas");
-    this.canvas.width = 600;
-    this.canvas.height = 600;
+    this.canvas.classList.add("whiteboard-canvas");
+    this.canvas.width = 4000;
+    this.canvas.height = 3000;
     this.context = this.canvas.getContext("2d");
-    this.context.strokeStyle = "#ffffff";
-    this.context.lineWidth = "3";
-    this.context.lineCap = this.context.lineJoin = "round";
+    this.context.fillStyle = "#ffffff";
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.lines = [];
     this.plots = [];
     this.startDrawing = this.startDrawing.bind(this);
@@ -37,11 +40,16 @@ export class Whiteboard extends EventTarget {
     this.canvas.addEventListener(downEvent, this.startDrawing, false);
     this.canvas.addEventListener(moveEvent, this.draw, false);
     this.canvas.addEventListener(upEvent, this.endDrawing, false);
-    container.appendChild(this.canvas);
+    this.wrapper.appendChild(this.canvas);
+    this.container.appendChild(this.wrapper);
+    this.setRatios();
+    this.drawOnCanvas = this.drawOnCanvas.bind(this);
   }
 
   drawOnCanvas(plots) {
-    // this.context.strokeStyle = color;
+    this.context.strokeStyle = "#000000";
+    this.context.lineWidth = "30";
+    this.context.lineCap = this.context.lineJoin = "round";
     this.context.beginPath();
     if (plots.length > 0) {
       this.context.moveTo(plots[0].x, plots[0].y);
@@ -54,6 +62,7 @@ export class Whiteboard extends EventTarget {
 
   startDrawing(event) {
     event.preventDefault();
+    this.setRatios();
     this.isDrawing = true;
   }
 
@@ -63,12 +72,14 @@ export class Whiteboard extends EventTarget {
       return;
     }
 
-    const x = isTouchSupported
+    let x = isTouchSupported
       ? event.targetTouches[0].pageX - this.canvas.offsetLeft
       : event.offsetX || event.layerX - this.canvas.offsetLeft;
-    const y = isTouchSupported
+    let y = isTouchSupported
       ? event.targetTouches[0].pageY - this.canvas.offsetTop
       : event.offsetY || event.layerY - this.canvas.offsetTop;
+    x = x * this.widthScale;
+    y = y * this.heightScale;
 
     this.plots.push({ x: x << 0, y: y << 0 });
 
@@ -95,6 +106,13 @@ export class Whiteboard extends EventTarget {
 
   destroy() {
     this.canvas.remove();
+    this.wrapper.remove();
     this.lines = [];
+  }
+
+  setRatios() {
+    this.clientRect = this.canvas.getBoundingClientRect();
+    this.widthScale = this.canvas.width / this.clientRect.width;
+    this.heightScale = this.canvas.height / this.clientRect.height;
   }
 }

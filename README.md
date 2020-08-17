@@ -43,6 +43,10 @@ npm start
 - [x] Push to talk
 - [x] Mute other
 - [ ] Whiteboard
+  - [ ] Place whiteboard above action buttons
+  - [ ] Disable share screen when whiteboard active
+  - [ ] Disable whiteboard when share screen active
+  - [ ] Colours and stroke width for whiteboard
 - [ ] Joinable links for rooms
 - [ ] Code of conduct room joining barrier
 - [ ] Reconnecting logic

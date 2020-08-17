@@ -27,7 +27,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const previewBtn = document.getElementById("media-preview");
   const startDiv = document.querySelector(".start");
   const videoChatDiv = document.getElementById("video-chat");
-  const screenDiv = document.getElementById("screen");
+  const activityDiv = document.getElementById("activity");
   const joinForm = document.getElementById("join-room");
   const disconnectBtn = document.getElementById("disconnect");
   const screenShareBtn = document.getElementById("screen-share");
@@ -44,7 +44,7 @@ window.addEventListener("DOMContentLoaded", () => {
       const mediaElements = track.detach();
       mediaElements.forEach((mediaElement) => mediaElement.remove());
       if (track.name === "user-screen") {
-        hideElements(screenDiv);
+        hideElements(activityDiv);
         videoChatDiv.classList.remove("screen-share");
       }
     }
@@ -260,7 +260,8 @@ window.addEventListener("DOMContentLoaded", () => {
     if (whiteboard) {
       return;
     }
-    whiteboard = new Whiteboard(videoChatDiv);
+    showElements(activityDiv);
+    whiteboard = new Whiteboard(activityDiv);
     lines.forEach((line) => {
       whiteboard.drawOnCanvas(line);
       whiteboard.saveLine(line);
@@ -282,6 +283,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!whiteboard) {
       return;
     }
+    hideElements(activityDiv);
     whiteboard.destroy();
     whiteboard = null;
     videoChatDiv.classList.remove("screen-share");
