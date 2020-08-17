@@ -211,6 +211,10 @@ export class VideoChat extends EventTarget {
       mute.appendChild(document.createTextNode("mute"));
       actions.appendChild(mute);
       wrapper.appendChild(actions);
+      const name = document.createElement("p");
+      name.classList.add("name");
+      name.appendChild(document.createTextNode(participant.identity));
+      wrapper.appendChild(name);
     }
     this.container.appendChild(participantItem);
     this.setRowsAndColumns(this.room);
