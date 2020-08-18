@@ -11,7 +11,6 @@ export class VideoChat extends EventTarget {
     this.container = document.getElementById("participants");
     this.screenDiv = document.getElementById("activity");
     this.chatDiv = document.getElementById("video-chat");
-    this.screenButton = document.getElementById("screen-share");
     this.dominantSpeaker = null;
     this.participantItems = new Map();
     this.participantConnected = this.participantConnected.bind(this);
@@ -114,9 +113,8 @@ export class VideoChat extends EventTarget {
           this.chatDiv.classList.add("screen-share");
           this.screenDiv.appendChild(videoElement);
           showElements(this.screenDiv);
-          if (participant !== this.room.localParticipant) {
-            this.screenButton.setAttribute("disabled", "disabled");
-          }
+          const screenShareEvent = new Event("screen-share-started");
+          this.dispatchEvent(screenShareEvent);
         } else {
           wrapper.appendChild(videoElement);
         }
@@ -181,9 +179,8 @@ export class VideoChat extends EventTarget {
         if (track.name === "user-screen") {
           hideElements(this.screenDiv);
           this.chatDiv.classList.remove("screen-share");
-          if (participant !== this.room.localParticipant) {
-            this.screenButton.removeAttribute("disabled");
-          }
+          const screenShareEvent = new Event("screen-share-stopped");
+          this.dispatchEvent(screenShareEvent);
         }
       }
     };
@@ -299,7 +296,9 @@ export class VideoChat extends EventTarget {
   }
 
   stopScreenShare(track) {
-    this.room.localParticipant.unpublishTrack(track);
+    if (this.room) {
+      this.room.localParticipant.unpublishTrack(track);
+    }
   }
 
   roomDisconnected(room, error) {

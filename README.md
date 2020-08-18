@@ -42,11 +42,11 @@ npm start
 - [x] Dominant speaker detection
 - [x] Push to talk
 - [x] Mute other
-- [ ] Whiteboard
+- [x] Whiteboard
   - [x] Place whiteboard above action buttons
   - [x] Colours for whiteboard
-  - [ ] Disable share screen when whiteboard active
-  - [ ] Disable whiteboard when share screen active
+  - [x] Disable share screen when whiteboard active
+  - [x] Disable whiteboard when share screen active
 - [x] Name overlay on video
 - [ ] Joinable links for rooms
 - [ ] Code of conduct room joining barrier

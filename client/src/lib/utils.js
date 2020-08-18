@@ -4,6 +4,13 @@ const hideElements = (...elements) =>
 const showElements = (...elements) =>
   elements.forEach((el) => el.removeAttribute("hidden"));
 
+const disableButton = (btn) => {
+  btn.setAttribute("disabled", "disabled");
+};
+const enableButton = (btn) => {
+  btn.removeAttribute("disabled");
+};
+
 const buildDropDown = (labelText, options, selected) => {
   const label = document.createElement("label");
   label.appendChild(document.createTextNode(labelText));
@@ -39,4 +46,6 @@ module.exports = {
   buildDropDown,
   attachTrack,
   detachTrack,
+  disableButton,
+  enableButton,
 };

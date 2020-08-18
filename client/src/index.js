@@ -1,6 +1,11 @@
 import Video, { LocalVideoTrack, LocalDataTrack } from "twilio-video";
 import { VideoChat } from "./lib/video-chat";
-import { hideElements, showElements } from "./lib/utils";
+import {
+  hideElements,
+  showElements,
+  disableButton,
+  enableButton,
+} from "./lib/utils";
 import LocalPreview from "./lib/localPreview";
 import { Whiteboard } from "./lib/whiteboard";
 
@@ -158,6 +163,19 @@ window.addEventListener("DOMContentLoaded", () => {
       whiteboard.drawOnCanvas(event.detail);
       whiteboard.saveLine(event.detail);
     });
+
+    videoChat.addEventListener("screen-share-started", () => {
+      if (screenShareBtn && !screenTrack) {
+        disableButton(screenShareBtn);
+      }
+      disableButton(whiteboardBtn);
+    });
+    videoChat.addEventListener("screen-share-stopped", () => {
+      if (screenShareBtn) {
+        enableButton(screenShareBtn);
+      }
+      enableButton(whiteboardBtn);
+    });
   });
 
   disconnectBtn.addEventListener("click", () => {
@@ -184,6 +202,7 @@ window.addEventListener("DOMContentLoaded", () => {
     screenTrack.stop();
     screenTrack = null;
     screenShareBtn.innerText = "Share screen";
+    enableButton(whiteboardBtn);
   };
 
   screenShareBtn.addEventListener("click", async () => {
@@ -199,6 +218,7 @@ window.addEventListener("DOMContentLoaded", () => {
         videoChat.startScreenShare(screenTrack);
         track.addEventListener("ended", stopScreenSharing);
         screenShareBtn.innerText = "Stop sharing";
+        disableButton(whiteboardBtn);
       } catch (error) {
         console.error(error);
       }
@@ -277,6 +297,9 @@ window.addEventListener("DOMContentLoaded", () => {
         })
       );
     });
+    if (screenShareBtn) {
+      disableButton(screenShareBtn);
+    }
   };
 
   const stopWhiteboard = () => {
@@ -290,6 +313,9 @@ window.addEventListener("DOMContentLoaded", () => {
     whiteboardBtn.innerText = "Start whiteboard";
     if (videoChat) {
       videoChat.whiteboardStopped();
+    }
+    if (screenShareBtn) {
+      enableButton(screenShareBtn);
     }
   };
 });
