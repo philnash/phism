@@ -273,7 +273,7 @@ window.addEventListener("DOMContentLoaded", () => {
       dataTrack.send(
         JSON.stringify({
           action: "whiteboard",
-          event: event.detail.plots,
+          event: event.detail,
         })
       );
     });

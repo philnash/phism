@@ -255,10 +255,48 @@ select {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  background-color: #fff;
 }
 .whiteboard-canvas {
   object-fit: contain;
   display: block;
   max-height: 65vh;
   max-width: 100%;
+}
+
+.colour-list {
+  list-style-type: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  margin: 0.5em 0 0;
+  --background-color: #fff;
+}
+
+.colour-list label {
+  background-color: var(--background-color);
+  font-size: 0;
+  display: block;
+  width: 32px;
+  height: 32px;
+  border-radius: 32px;
+  margin-right: 8px;
+  border: 3px solid #50163c;
+}
+.colour-list li:last-child label {
+  margin-right: 0;
+}
+.colour-list input:checked + label {
+  border-color: transparent;
+}
+.colour-list input {
+  display: none;
+}
+
+.colour-list label.selected {
+  border-color: transparent;
 }

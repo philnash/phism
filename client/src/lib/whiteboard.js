@@ -19,12 +19,48 @@ const upEvent = isTouchSupported
   ? "pointerup"
   : "mouseup";
 
+const colours = [
+  { name: "black", value: "#000000", checked: true },
+  { name: "red", value: "#f22f46", checked: false },
+  { name: "purple", value: "#663399", checked: false },
+  { name: "blue", value: "#87ceeb", checked: false },
+  { name: "green", value: "#50c878", checked: false },
+  { name: "orange", value: "#FF964F", checked: false },
+  { name: "yellow", value: "#FFFF7E", checked: false },
+];
+
+const buildColourButtons = (colours) => {
+  const colourList = document.createElement("ul");
+  colourList.classList.add("colour-list");
+  colours.forEach((colour) => {
+    const li = document.createElement("li");
+    const radioBtn = document.createElement("input");
+    radioBtn.setAttribute("type", "radio");
+    radioBtn.setAttribute("value", colour.value);
+    radioBtn.setAttribute("name", "colour");
+    radioBtn.setAttribute("id", colour.name);
+    if (colour.checked) {
+      radioBtn.setAttribute("checked", "checked");
+    }
+    const label = document.createElement("label");
+    label.setAttribute("for", colour.name);
+    label.appendChild(document.createTextNode(colour.name));
+    label.style.setProperty("--background-color", colour.value);
+    li.appendChild(radioBtn);
+    li.appendChild(label);
+    colourList.appendChild(li);
+  });
+  return colourList;
+};
+
 export class Whiteboard extends EventTarget {
   constructor(container) {
     super();
     this.container = container;
     this.wrapper = document.createElement("div");
     this.wrapper.classList.add("whiteboard-wrapper");
+    this.colourList = buildColourButtons(colours);
+    this.wrapper.appendChild(this.colourList);
     this.canvas = document.createElement("canvas");
     this.canvas.classList.add("whiteboard-canvas");
     this.canvas.width = 4000;
@@ -33,7 +69,10 @@ export class Whiteboard extends EventTarget {
     this.context.fillStyle = "#ffffff";
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.lines = [];
-    this.plots = [];
+    this.line = {
+      plots: [],
+      colour: this.currentColour(),
+    };
     this.startDrawing = this.startDrawing.bind(this);
     this.endDrawing = this.endDrawing.bind(this);
     this.draw = this.draw.bind(this);
@@ -46,14 +85,18 @@ export class Whiteboard extends EventTarget {
     this.drawOnCanvas = this.drawOnCanvas.bind(this);
   }
 
-  drawOnCanvas(plots) {
-    this.context.strokeStyle = "#000000";
+  currentColour() {
+    return this.colourList.querySelector("input:checked").value;
+  }
+
+  drawOnCanvas(line) {
+    this.context.strokeStyle = line.colour;
     this.context.lineWidth = "30";
     this.context.lineCap = this.context.lineJoin = "round";
     this.context.beginPath();
-    if (plots.length > 0) {
-      this.context.moveTo(plots[0].x, plots[0].y);
-      plots.forEach((plot) => {
+    if (line.plots.length > 0) {
+      this.context.moveTo(line.plots[0].x, line.plots[0].y);
+      line.plots.forEach((plot) => {
         this.context.lineTo(plot.x, plot.y);
       });
       this.context.stroke();
@@ -64,6 +107,7 @@ export class Whiteboard extends EventTarget {
     event.preventDefault();
     this.setRatios();
     this.isDrawing = true;
+    this.line.colour = this.currentColour();
   }
 
   draw(event) {
@@ -81,23 +125,21 @@ export class Whiteboard extends EventTarget {
     x = x * this.widthScale;
     y = y * this.heightScale;
 
-    this.plots.push({ x: x << 0, y: y << 0 });
+    this.line.plots.push({ x: x << 0, y: y << 0 });
 
-    this.drawOnCanvas(this.plots);
+    this.drawOnCanvas(this.line);
   }
 
   endDrawing(event) {
     event.preventDefault();
     this.isDrawing = false;
-    const plotsCopy = [...this.plots];
+    const lineCopy = Object.assign({}, this.line);
     const drawingEvent = new CustomEvent("draw", {
-      detail: {
-        plots: plotsCopy,
-      },
+      detail: lineCopy,
     });
     this.dispatchEvent(drawingEvent);
-    this.saveLine(plotsCopy);
-    this.plots = [];
+    this.saveLine(lineCopy);
+    this.line.plots = [];
   }
 
   saveLine(line) {
