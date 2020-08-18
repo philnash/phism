@@ -29,28 +29,50 @@ const colours = [
   { name: "yellow", value: "#FFFF7E", checked: false },
 ];
 
+const brushes = [
+  { name: "small", value: 10, checked: false },
+  { name: "medium", value: 30, checked: true },
+  { name: "large", value: 60, checked: false },
+];
+
+const buildRadioButton = (name, options) => {
+  const li = document.createElement("li");
+  const radioBtn = document.createElement("input");
+  radioBtn.setAttribute("type", "radio");
+  radioBtn.setAttribute("value", options.value);
+  radioBtn.setAttribute("name", name);
+  radioBtn.setAttribute("id", options.name);
+  if (options.checked) {
+    radioBtn.setAttribute("checked", "checked");
+  }
+  const label = document.createElement("label");
+  label.setAttribute("for", options.name);
+  label.appendChild(document.createTextNode(options.name));
+  li.appendChild(radioBtn);
+  li.appendChild(label);
+  return li;
+};
+
 const buildColourButtons = (colours) => {
   const colourList = document.createElement("ul");
   colourList.classList.add("colour-list");
   colours.forEach((colour) => {
-    const li = document.createElement("li");
-    const radioBtn = document.createElement("input");
-    radioBtn.setAttribute("type", "radio");
-    radioBtn.setAttribute("value", colour.value);
-    radioBtn.setAttribute("name", "colour");
-    radioBtn.setAttribute("id", colour.name);
-    if (colour.checked) {
-      radioBtn.setAttribute("checked", "checked");
-    }
-    const label = document.createElement("label");
-    label.setAttribute("for", colour.name);
-    label.appendChild(document.createTextNode(colour.name));
+    const li = buildRadioButton("colour", colour);
+    const label = li.querySelector("label");
     label.style.setProperty("--background-color", colour.value);
-    li.appendChild(radioBtn);
-    li.appendChild(label);
     colourList.appendChild(li);
   });
   return colourList;
+};
+
+const buildBrushButtons = (brushes) => {
+  const brushList = document.createElement("ul");
+  brushList.classList.add("brush-list");
+  brushes.forEach((brush) => {
+    const li = buildRadioButton("brush", brush);
+    brushList.appendChild(li);
+  });
+  return brushList;
 };
 
 export class Whiteboard extends EventTarget {
@@ -61,6 +83,8 @@ export class Whiteboard extends EventTarget {
     this.wrapper.classList.add("whiteboard-wrapper");
     this.colourList = buildColourButtons(colours);
     this.wrapper.appendChild(this.colourList);
+    this.brushList = buildBrushButtons(brushes);
+    this.wrapper.appendChild(this.brushList);
     this.canvas = document.createElement("canvas");
     this.canvas.classList.add("whiteboard-canvas");
     this.canvas.width = 4000;
@@ -72,6 +96,7 @@ export class Whiteboard extends EventTarget {
     this.line = {
       plots: [],
       colour: this.currentColour(),
+      brush: this.currentBrush(),
     };
     this.startDrawing = this.startDrawing.bind(this);
     this.endDrawing = this.endDrawing.bind(this);
@@ -89,9 +114,13 @@ export class Whiteboard extends EventTarget {
     return this.colourList.querySelector("input:checked").value;
   }
 
+  currentBrush() {
+    return this.brushList.querySelector("input:checked").value;
+  }
+
   drawOnCanvas(line) {
     this.context.strokeStyle = line.colour;
-    this.context.lineWidth = "30";
+    this.context.lineWidth = line.brush;
     this.context.lineCap = this.context.lineJoin = "round";
     this.context.beginPath();
     if (line.plots.length > 0) {
@@ -108,6 +137,7 @@ export class Whiteboard extends EventTarget {
     this.setRatios();
     this.isDrawing = true;
     this.line.colour = this.currentColour();
+    this.line.brush = this.currentBrush();
   }
 
   draw(event) {

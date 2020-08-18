@@ -265,7 +265,8 @@ select {
   max-width: 100%;
 }
 
-.colour-list {
+.colour-list,
+.brush-list {
   list-style-type: none;
   position: absolute;
   top: 0;
@@ -277,7 +278,12 @@ select {
   --background-color: #fff;
 }
 
-.colour-list label {
+.brush-list {
+  top: 42px;
+}
+
+.colour-list label,
+.brush-list label {
   background-color: var(--background-color);
   font-size: 0;
   display: block;
@@ -285,18 +291,48 @@ select {
   height: 32px;
   border-radius: 32px;
   margin-right: 8px;
-  border: 3px solid #50163c;
+  border: 3px solid transparent;
 }
-.colour-list li:last-child label {
+.colour-list li:last-child label,
+.brush-list li:last-child label {
   margin-right: 0;
 }
-.colour-list input:checked + label {
-  border-color: transparent;
+.colour-list input:checked + label,
+.brush-list input:checked + label {
+  border-color: #50163c;
 }
-.colour-list input {
+.colour-list input,
+.brush-list input {
   display: none;
 }
 
-.colour-list label.selected {
-  border-color: transparent;
+.brush-list label {
+  position: relative;
+}
+.brush-list label::after {
+  content: " ";
+  display: block;
+  background-color: #000;
+  position: absolute;
+}
+.brush-list label[for="small"]::after {
+  width: 4px;
+  height: 4px;
+  border-radius: 4px;
+  top: 11px;
+  left: 11px;
+}
+.brush-list label[for="medium"]::after {
+  width: 8px;
+  height: 8px;
+  border-radius: 8px;
+  top: 9px;
+  left: 9px;
+}
+.brush-list label[for="large"]::after {
+  width: 14px;
+  height: 14px;
+  border-radius: 14px;
+  top: 6px;
+  left: 6px;
 }

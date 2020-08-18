@@ -47,11 +47,12 @@ npm start
   - [x] Colours for whiteboard
   - [x] Disable share screen when whiteboard active
   - [x] Disable whiteboard when share screen active
+  - [x] Brush options
 - [x] Name overlay on video
-- [ ] Joinable links for rooms
-- [ ] Code of conduct room joining barrier
 - [ ] Reconnecting logic
 - [ ] Group selfie button (does canvas allow this?)
+- [ ] Code of conduct room joining barrier
+- [ ] Joinable links for rooms
 - [ ] Breakout rooms
 - [ ] Chat (Twilio Programmable Chat)
 - [ ] Live captions (Web Speech API)
