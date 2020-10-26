@@ -8,6 +8,7 @@ import {
 } from "./lib/utils";
 import LocalPreview from "./lib/localPreview";
 import { Whiteboard } from "./lib/whiteboard";
+import { Recorder } from "./lib/recorder";
 
 let videoTrack,
   audioTrack,
@@ -16,7 +17,8 @@ let videoTrack,
   dataTrack,
   reactionListener,
   videoChat,
-  whiteboard;
+  whiteboard,
+  recorder;
 
 const setupTrackListeners = (track, button, enableLabel, disableLabel) => {
   button.innerText = track.isEnabled ? disableLabel : enableLabel;
@@ -123,6 +125,11 @@ window.addEventListener("DOMContentLoaded", () => {
       { videoTrack, audioTrack, dataTrack },
       reactions
     );
+    recorder = new Recorder(
+      [videoTrack.mediaStreamTrack, audioTrack.mediaStreamTrack],
+      identity
+    );
+    recorder.start();
     if (!("getDisplayMedia" in navigator.mediaDevices)) {
       screenShareBtn.remove();
     }
@@ -183,6 +190,7 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
     videoChat.disconnect();
+    recorder.stop();
     if (screenTrack) {
       stopScreenSharing();
     }
