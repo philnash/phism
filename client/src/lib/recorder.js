@@ -24,7 +24,6 @@ export class Recorder {
   handleDataAvailable(event) {
     if (typeof event.data === "undefined") return;
     if (event.data.size === 0) return;
-    console.log(event);
     this.chunks.push(event.data);
     const data = new FormData();
     data.append("video-part", event.data);
@@ -33,7 +32,7 @@ export class Recorder {
     fetch("/recordings", {
       method: "POST",
       body: data,
-    }).then(console.log);
+    });
   }
 
   handleRecordingStop() {
@@ -43,6 +42,6 @@ export class Recorder {
     fetch("/recordings", {
       method: "POST",
       body: data,
-    }).then(console.log);
+    });
   }
 }
