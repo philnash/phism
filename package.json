@@ -13,7 +13,7 @@
   "author": "Phil Nash <philnash@twilio.com> (https://philna.sh)",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-pino-logger": "^5.0.0",
     "normalize.css": "^8.0.1",
     "parcel-bundler": "^1.12.4",
